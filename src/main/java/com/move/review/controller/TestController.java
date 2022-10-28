@@ -1,8 +1,9 @@
 package com.move.review.controller;
 
-import com.springTemp.temp.exception.PrivateException;
-import com.springTemp.temp.exception.PrivateResponseBody;
-import com.springTemp.temp.exception.StatusCode;
+import com.move.review.exception.PrivateException;
+import com.move.review.exception.PrivateResponseBody;
+
+import com.move.review.exception.StatusCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
