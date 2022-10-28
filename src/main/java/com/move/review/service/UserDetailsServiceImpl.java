@@ -1,8 +1,6 @@
 package com.move.review.service;
 
-import com.move.review.domain.Member;
 import com.move.review.domain.UserDetailsImpl;
-import com.move.review.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

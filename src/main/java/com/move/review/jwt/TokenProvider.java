@@ -1,9 +1,7 @@
 package com.move.review.jwt;
 
-import com.move.review.domain.Member;
 import com.move.review.domain.RefreshToken;
 import com.move.review.domain.UserDetailsImpl;
-import com.move.review.controller.response.ResponseDto;
 import com.move.review.controller.request.TokenDto;
 import com.move.review.repository.RefreshTokenRepository;
 import com.move.review.shared.Authority;

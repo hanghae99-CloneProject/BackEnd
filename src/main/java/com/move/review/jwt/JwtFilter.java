@@ -1,6 +1,5 @@
 package com.move.review.jwt;
 
-import com.move.review.controller.response.ResponseDto;
 import com.move.review.service.UserDetailsServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;

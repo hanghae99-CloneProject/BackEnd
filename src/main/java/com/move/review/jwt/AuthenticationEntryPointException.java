@@ -1,6 +1,5 @@
 package com.move.review.jwt;
 
-import com.move.review.controller.response.ResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
