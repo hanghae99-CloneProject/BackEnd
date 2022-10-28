@@ -1,5 +1,6 @@
 package com.move.review.repository;
 
+import com.move.review.domain.Member;
 import com.move.review.domain.RefreshToken;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;

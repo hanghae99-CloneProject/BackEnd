@@ -1,5 +1,7 @@
 package com.move.review.jwt;
 
+import com.move.review.controller.response.ResponseDto;
+import com.move.review.domain.Member;
 import com.move.review.domain.RefreshToken;
 import com.move.review.domain.UserDetailsImpl;
 import com.move.review.controller.request.TokenDto;
@@ -50,7 +52,7 @@ public class TokenProvider {
 
     Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
     String accessToken = Jwts.builder()
-        .setSubject(member.getMemberName())
+        .setSubject(member.getEmail())
         .claim(AUTHORITIES_KEY, Authority.ROLE_MEMBER.toString())
         .setExpiration(accessTokenExpiresIn)
         .signWith(key, SignatureAlgorithm.HS256)
@@ -62,7 +64,7 @@ public class TokenProvider {
         .compact();
 
     RefreshToken refreshTokenObject = RefreshToken.builder()
-        .id(member.getMemberId())
+        .id(member.getId())
         .member(member)
         .value(refreshToken)
         .build();
