@@ -1,6 +1,7 @@
 package com.move.review.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.move.review.controller.response.ResponseDto;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;

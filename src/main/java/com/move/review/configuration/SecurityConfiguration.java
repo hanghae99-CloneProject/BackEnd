@@ -60,11 +60,8 @@ public class SecurityConfiguration {
         .and()
         .authorizeRequests()
         .requestMatchers(CorsUtils::isPreFlightRequest).permitAll() // 추가
-        .antMatchers("/api/member/signup",
-                "/api/member/login",
-                "/api/member/id-check",
-                "/api/top-heart",
-//                "/api/reviews",
+        .antMatchers("/bunjang/singup",
+                "/bunjang/login",
                 "/api/reviews/{reviewId}").permitAll()
         .antMatchers(HttpMethod.GET,"/api/reviews").permitAll()
         .antMatchers("/api/comments/**").permitAll()
