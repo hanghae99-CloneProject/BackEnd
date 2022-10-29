@@ -62,6 +62,7 @@ public class SecurityConfiguration {
         .requestMatchers(CorsUtils::isPreFlightRequest).permitAll() // 추가
         .antMatchers("/bunjang/singup",
                 "/bunjang/login",
+                "/bunjang/**",
                 "/api/reviews/{reviewId}").permitAll()
         .antMatchers(HttpMethod.GET,"/api/reviews").permitAll()
         .antMatchers("/api/comments/**").permitAll()

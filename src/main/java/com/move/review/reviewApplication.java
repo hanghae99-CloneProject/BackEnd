@@ -12,6 +12,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class reviewApplication {
 
     public static void main(String[] args) {
+
         SpringApplication.run(reviewApplication.class, args);
+        System.out.println("실행 확인 ~~~~~~~~~");
     }
 }

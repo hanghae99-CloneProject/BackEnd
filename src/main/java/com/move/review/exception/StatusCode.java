@@ -20,11 +20,13 @@ public enum StatusCode {
     LOGIN_WRONG_FORM_JWT_TOKEN(HttpStatus.BAD_REQUEST, "115", "JWT 토큰이 잘못되었습니다."),
 
     LOGIN_MEMBER_REQUIRED_INFORMATION_FAIL(HttpStatus.BAD_REQUEST, "116", "필수 입력 정보를 입력 후 시도해주세요"),
+    NOT_MATCH_POST(HttpStatus.INTERNAL_SERVER_ERROR, "117", "현재 로그인한 유저가 작성한 게시글이 아닙니다."),
 
     DUPLICATED_NICKNAME(HttpStatus.BAD_REQUEST,"117","중복된 email이 있습니다."),
     DUPLICATED_PASSWORD(HttpStatus.BAD_REQUEST,"118","Password가 틀립니다."),
 
     INTERNAL_SERVER_ERROR_PLZ_CHECK(HttpStatus.INTERNAL_SERVER_ERROR, "999", "알수없는 서버 내부 에러 발생 , dladlsgur3334@gmail.com 으로 연락 부탁드립니다.");
+
 
     private final HttpStatus httpStatus;
     private final String statusCode;
