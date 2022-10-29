@@ -12,28 +12,26 @@ public enum Category {
     디지털가전(7);
 
     private int num;
-//    private String parts;
 
     Category(int num ) {
         this.num = num ;
-//        this.parts = parts;
     }
-    public static String partsValue(int num) {
+    public static Category partsValue(int num) {
         switch (num) {
             case 1:
-                return "여성의류";
+                return 여성의류;
             case 2:
-                return "남성의류";
+                return 남성의류;
             case 3:
-                return "신발";
+                return 신발;
             case 4:
-                return "가방";
+                return 가방;
             case 5:
-                return "시계쥬얼리";
+                return 시계쥬얼리;
             case 6:
-                return "패션액세서리";
+                return 패션액세서리;
             case 7:
-                return "디지털가전";
+                return 디지털가전;
         }
         return null;
     }

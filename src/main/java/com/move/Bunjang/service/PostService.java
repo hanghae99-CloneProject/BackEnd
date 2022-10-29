@@ -15,6 +15,9 @@ import com.move.Bunjang.repository.PostRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,8 +25,17 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.HashMap;
 
@@ -45,42 +57,45 @@ public class PostService {
 
 
     // 회원관리 기능이 정상적으로 합쳐진다면 해제
-//    public Member authorizeToken(HttpServletRequest request){
-//         // 회원 관리 기능과 합쳐진다면 해제
-//        if(request.getHeader("Authorization") == null){
-//            throw new PrivateException(StatusCode.LOGIN_EXPIRED_JWT_TOKEN);
-//        }
-//
-//        if(!tokenProvider.validateToken(request.getHeader("Refresh-Token"))){
-//            throw new PrivateException(StatusCode.LOGIN_EXPIRED_JWT_TOKEN);
-//        }
-//
-//        Member member = tokenProvider.getMemberFromAuthentication();
-//
-//        return member;
-//    }
+    public Member authorizeToken(HttpServletRequest request){
+         // 회원 관리 기능과 합쳐진다면 해제
+        if(request.getHeader("Authorization") == null){
+            throw new PrivateException(StatusCode.LOGIN_EXPIRED_JWT_TOKEN);
+        }
+
+        if(!tokenProvider.validateToken(request.getHeader("Refresh-Token"))){
+            throw new PrivateException(StatusCode.LOGIN_EXPIRED_JWT_TOKEN);
+        }
+
+        Member member = tokenProvider.getMemberFromAuthentication();
+
+        return member;
+    }
 
 
     // 게시글 작성
     public ResponseEntity<PrivateResponseBody> writePost(
             List<MultipartFile> multipartFiles,
             PostRequestDto postRequestDto,
-            HttpServletRequest request) {
+            HttpServletRequest request) throws IOException {
 
         // 회원관리 기능이 정상적으로 합쳐진다면 해제
-        // authorizeToken(request);
+        Member member = authorizeToken(request);
 
         // 구현 동작을 테스트하기 위해 임의 멤버를 사용
-        Member test_member = jpaQueryFactory
-                .selectFrom(member)
-                .where(member.memberId.eq(1L))
-                .fetchOne();
+//        Member test_member = jpaQueryFactory
+//                .selectFrom(member)
+//                .where(member.memberId.eq(1L))
+//                .fetchOne();
+
+        String locationAddress = getAddressData(postRequestDto.getLocal());
+        System.out.println(locationAddress);
+
 
         Post post = Post.builder()
                 .title(postRequestDto.getTitle())
-                .author(test_member.getEmail())
-                .category(Category.valueOf(Category.partsValue(postRequestDto.getCategory())))
-                //카테고리 수정 2022-10-29 오후 8시 17분
+                .author(member.getEmail())
+                .category(Category.partsValue(postRequestDto.getCategory()))
                 .local(postRequestDto.getLocal())
                 .state(postRequestDto.getState())
                 .trade(postRequestDto.getTrade())
@@ -88,33 +103,10 @@ public class PostService {
                 .content(postRequestDto.getContent())
                 .tag(postRequestDto.getTag())
                 .amount(postRequestDto.getAmount())
-                .member(test_member)
+                .member(member)
                 .build();
 
         postRepository.save(post);
-
-        if (multipartFiles == null) {
-            return new ResponseEntity<>(new PrivateResponseBody(StatusCode.POST_ERROR,
-                    PostResponseDto.builder()
-                            .id(post.getId())
-                            .title(post.getTitle())
-                            .author(post.getAuthor())
-                            .category(post.getCategory())
-                            //카테고리 수정 2022-10-29 오후 8시 17분
-                            .local(post.getLocal())
-                            .state(post.getState())
-                            .trade(post.getTrade())
-                            .price(post.getPrice())
-                            .content(post.getContent())
-                            .tag(post.getTag())
-                            .amount(post.getAmount())
-                            .createdAt(post.getCreatedAt())
-                            .modifiedAt(post.getModifiedAt())
-//                            .whoCreated(post.getWhoCreate())
-//                            .whoUpdated(post.getWhoUpdate())
-                            .build()
-            ),HttpStatus.BAD_REQUEST);
-        }
 
         List<Media> medias = imageUpload.fileUpload(multipartFiles, post);
 
@@ -123,8 +115,7 @@ public class PostService {
                         .id(post.getId())
                         .title(post.getTitle())
                         .author(post.getAuthor())
-                         .category(post.getCategory())
-                        // 카테고리 수정 2022-10-29 오후 8시 17분
+                        .category(post.getCategory())
                         .local(post.getLocal())
                         .state(post.getState())
                         .trade(post.getTrade())
@@ -135,8 +126,6 @@ public class PostService {
                         .medias(medias)
                         .createdAt(post.getCreatedAt())
                         .modifiedAt(post.getModifiedAt())
-//                        .whoCreated(post.getWhoCreate())
-//                        .whoUpdated(post.getWhoUpdate())
                         .build()),HttpStatus.OK);
     }
 
@@ -144,32 +133,18 @@ public class PostService {
 
     // 게시글 수정
     @Transactional
-    public ResponseEntity<PostResponseDto> updatePost(
+    public ResponseEntity<PrivateResponseBody> updatePost(
             Long postId,
             List<MultipartFile> multipartFiles,
             PostRequestDto postRequestDto,
             HttpServletRequest request) {
 
-        // 회원 관리 기능과 합쳐진다면 해제
-//        if(request.getHeader("Authorization") == null){
-//            return ResponseDto.fail("NOT_ALLOWED_TOKEN", "권한이 없는 유저입니다.");
-//        }
-//
-//        if(!tokenProvider.validateToken(request.getHeader("Refresh-Token"))){
-//            return ResponseDto.fail("NOT_ALLOWED_TOKEN", "권한이 없는 유저입니다.");
-//        }
-//
-//        Member member = tokenProvider.getMemberFromAuthentication();
-
-        // 구현 동작을 테스트하기 위해 임의 멤버를 사용
-        Member test_member = jpaQueryFactory
-                .selectFrom(member)
-                .where(member.memberId.eq(1L))
-                .fetchOne();
+        // 회원관리 기능이 정상적으로 합쳐진다면 해제
+         Member member = authorizeToken(request);
 
         Post post1 = jpaQueryFactory
                 .selectFrom(post)
-                .where(post.member.eq(test_member).and(post.id.eq(postId)))
+                .where(post.member.eq(member).and(post.id.eq(postId)))
                 .fetchOne();
 
         if (post1 == null) {
@@ -179,8 +154,7 @@ public class PostService {
         jpaQueryFactory
                 .update(post)
                 .set(post.title, postRequestDto.getTitle())
-                .set(Collections.singletonList(post.category), Collections.singletonList(postRequestDto.getCategory()))
-                // update(post) category 관련 수정 필요
+                .set(post.category, Category.partsValue(postRequestDto.getCategory()))
                 .set(post.local, postRequestDto.getLocal())
                 .set(post.state, postRequestDto.getState())
                 .set(post.trade, postRequestDto.getTrade())
@@ -232,7 +206,7 @@ public class PostService {
         // 그래서 작업을 줄이기 위해, 미디어 파일이 현재 존재하고, 수정하고자하는 파일 또한 존재한다면,
         // 현재 존재하는 미디어 파일들을 삭제하고, 다시 수정하고자 하는 파일들을 한번에 등록시켜주는 것이 좋다고 생각하여 위와 같이 구성했다.
 
-        return ResponseEntity.ok(
+        return new ResponseEntity<>(new PrivateResponseBody(StatusCode.OK,
                 PostResponseDto.builder()
                         .id(post1.getId())
                         .title(post1.getTitle())
@@ -248,34 +222,22 @@ public class PostService {
                         .medias(medias)
                         .createdAt(post1.getCreatedAt())
                         .modifiedAt(post1.getModifiedAt())
-                        .build()
+                        .build()),HttpStatus.OK
         );
+
     }
 
 
     // 게시글 삭제
     @Transactional
-    public ResponseEntity<String> deletePost(Long postId, HttpServletRequest request) {
-        // 회원 관리 기능과 합쳐진다면 해제
-//        if(request.getHeader("Authorization") == null){
-//            return ResponseDto.fail("NOT_ALLOWED_TOKEN", "권한이 없는 유저입니다.");
-//        }
-//
-//        if(!tokenProvider.validateToken(request.getHeader("Refresh-Token"))){
-//            return ResponseDto.fail("NOT_ALLOWED_TOKEN", "권한이 없는 유저입니다.");
-//        }
-//
-//        Member member = tokenProvider.getMemberFromAuthentication();
+    public ResponseEntity<PrivateResponseBody> deletePost(Long postId, HttpServletRequest request) {
 
-        // 구현 동작을 테스트하기 위해 임의 멤버를 사용
-        Member test_member = jpaQueryFactory
-                .selectFrom(member)
-                .where(member.memberId.eq(1L))
-                .fetchOne();
+        // 회원관리 기능이 정상적으로 합쳐진다면 해제
+        Member auth_member = authorizeToken(request);
 
         Post post1 = jpaQueryFactory
                 .selectFrom(post)
-                .where(post.id.eq(postId).and(post.member.eq(test_member)))
+                .where(post.id.eq(postId).and(post.member.eq(auth_member)))
                 .fetchOne();
 
         if (post1 == null) {
@@ -306,12 +268,14 @@ public class PostService {
                 .execute();
 
 
-        return ResponseEntity.ok("삭제 성공");
+        return new ResponseEntity<>(new PrivateResponseBody(StatusCode.OK,
+                "삭제 성공"),HttpStatus.OK
+        );
     }
 
 
     // 특정 게시글 1개 상세 조회
-    public ResponseEntity<PostResponseDto> getPost(Long postId) {
+    public ResponseEntity<PrivateResponseBody> getPost(Long postId) {
         Post view_post = jpaQueryFactory
                 .selectFrom(post)
                 .where(post.id.eq(postId))
@@ -322,7 +286,7 @@ public class PostService {
                 .where(media.post.eq(view_post))
                 .fetch();
 
-        return ResponseEntity.ok(
+        return new ResponseEntity<>(new PrivateResponseBody(StatusCode.OK,
                 PostResponseDto.builder()
                         .id(view_post.getId())
                         .title(view_post.getTitle())
@@ -338,14 +302,14 @@ public class PostService {
                         .medias(medias)
                         .createdAt(view_post.getCreatedAt())
                         .modifiedAt(view_post.getModifiedAt())
-                        .build()
+                        .build()),HttpStatus.OK
         );
 
     }
 
 
-    // 게시글 목록 조히
-    public ResponseEntity<ArrayList<HashMap<String, String>>> getAllPost(){
+    // 게시글 목록 조회
+    public ResponseEntity<PrivateResponseBody> getAllPost(Pageable pageable){
         List<Post> Allposts = jpaQueryFactory
                 .selectFrom(post)
                 .fetch();
@@ -369,7 +333,47 @@ public class PostService {
             posts_map.add(posts);
         }
 
-        return ResponseEntity.ok(posts_map);
+        return new ResponseEntity<>(new PrivateResponseBody(StatusCode.OK,
+                posts_map),HttpStatus.OK);
 
+    }
+
+
+    // 카카오 지도 API를 활용한 일정한 주소 양식 출력
+    public String getAddressData(String roadFullAddr) throws IOException {
+        String apiKey = "1a123391d0bfd1a3c591465b76664655";
+        String apiUrl = "https://dapi.kakao.com/v2/local/search/address.json";
+        String jsonString = null;
+
+        try {
+            roadFullAddr = URLEncoder.encode(roadFullAddr, "UTF-8");
+
+            String addr = apiUrl + "?query=" + roadFullAddr;
+
+            URL url = new URL(addr);
+            URLConnection conn = url.openConnection();
+            conn.setRequestProperty("Authorization", "KakaoAK " + apiKey);
+
+            BufferedReader rd = null;
+            rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            StringBuffer docJson = new StringBuffer();
+
+            String line;
+
+            while ((line=rd.readLine()) != null) {
+                docJson.append(line);
+            }
+
+            jsonString = docJson.toString();
+            rd.close();
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return jsonString;
     }
 }

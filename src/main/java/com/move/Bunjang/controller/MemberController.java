@@ -21,7 +21,7 @@ public class MemberController {
   private final MemberService memberService;
 
   //회원 가입 API
-  @PostMapping(value = "/bunjang/singup")
+  @PostMapping(value = "/bunjang/signup")
   public ResponseEntity<PrivateResponseBody> signup(@RequestBody MemberRequestDto requestDto) {
     return memberService.createMember(requestDto);
   }
