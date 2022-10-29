@@ -2,12 +2,10 @@ package com.move.review.service;
 
 import com.move.review.controller.request.PostRequestDto;
 import com.move.review.controller.response.PostResponseDto;
-import com.move.review.controller.response.ResponseDto;
 import com.move.review.domain.Media;
 import com.move.review.domain.Member;
 import com.move.review.domain.Post;
 import com.move.review.exception.PrivateException;
-import com.move.review.exception.PrivateResponseBody;
 import com.move.review.exception.StatusCode;
 import com.move.review.jwt.TokenProvider;
 import com.move.review.repository.MediaRepository;
@@ -22,6 +20,7 @@ import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.HashMap;
 
@@ -78,6 +77,7 @@ public class PostService {
                 .title(postRequestDto.getTitle())
                 .author(test_member.getEmail())
                 .category(postRequestDto.getCategory())
+                //카테고리 수정 2022-10-29 오후 8시 17분
                 .local(postRequestDto.getLocal())
                 .state(postRequestDto.getState())
                 .trade(postRequestDto.getTrade())
@@ -97,6 +97,7 @@ public class PostService {
                             .title(post.getTitle())
                             .author(post.getAuthor())
                             .category(post.getCategory())
+                            //카테고리 수정 2022-10-29 오후 8시 17분
                             .local(post.getLocal())
                             .state(post.getState())
                             .trade(post.getTrade())
@@ -119,7 +120,8 @@ public class PostService {
                         .id(post.getId())
                         .title(post.getTitle())
                         .author(post.getAuthor())
-                        .category(post.getCategory())
+                         .category(post.getCategory())
+                        // 카테고리 수정 2022-10-29 오후 8시 17분
                         .local(post.getLocal())
                         .state(post.getState())
                         .trade(post.getTrade())
@@ -175,7 +177,8 @@ public class PostService {
         jpaQueryFactory
                 .update(post)
                 .set(post.title, postRequestDto.getTitle())
-                .set(post.category, postRequestDto.getCategory())
+                .set(Collections.singletonList(post.category), Collections.singletonList(postRequestDto.getCategory()))
+                // update(post) category 관련 수정 필요
                 .set(post.local, postRequestDto.getLocal())
                 .set(post.state, postRequestDto.getState())
                 .set(post.trade, postRequestDto.getTrade())

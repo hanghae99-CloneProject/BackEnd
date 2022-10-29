@@ -29,7 +29,8 @@ public class Post extends Timestamped{
     @Column(nullable = false)
     private String author;
 
-    // 카테고리
+    // 카테고리 수정 - 2022-10-29 오후 10시 13분
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private String category;
 
@@ -72,6 +73,8 @@ public class Post extends Timestamped{
     @JoinColumn(name = "memberId", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
+
+
 
 
 
