@@ -6,6 +6,9 @@ import com.move.Bunjang.exception.PrivateResponseBody;
 import com.move.Bunjang.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -54,7 +57,7 @@ public class PostController {
     // 게시글 수정 (미디어 포함)
     @ResponseBody
     @PutMapping(value = "/posts/{postId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<PostResponseDto> updatePost(
+    public ResponseEntity<PrivateResponseBody> updatePost(
             @PathVariable Long postId,
             @RequestPart(value = "media", required = false) List<MultipartFile> multipartFiles,
             @RequestPart(value = "post") PostRequestDto postRequestDto, // 게시글 작성을 위한 기입 정보들
@@ -81,7 +84,7 @@ public class PostController {
     // 게시글 삭제
     @ResponseBody
     @DeleteMapping("/posts/{postId}")
-    public ResponseEntity<String> deletePost(
+    public ResponseEntity<PrivateResponseBody> deletePost(
             @PathVariable Long postId,
             HttpServletRequest request) {
 
@@ -90,8 +93,8 @@ public class PostController {
 
     // 특정 게시글 1개 상세 조회
     @ResponseBody
-    @GetMapping("/posts/{postId}")
-    public ResponseEntity<PostResponseDto> getPost(
+    @GetMapping("/posts/get/{postId}")
+    public ResponseEntity<PrivateResponseBody> getPost(
             @PathVariable Long postId) {
 
         return postService.getPost(postId);
@@ -100,8 +103,8 @@ public class PostController {
 
     // 게시글 목록 조회
     @ResponseBody
-    @GetMapping("/posts")
-    public ResponseEntity<ArrayList<HashMap<String, String>>> getAllPost(
+    @GetMapping("/posts/get")
+    public ResponseEntity<PrivateResponseBody> getAllPost(
             @PageableDefault(page =0, size = 10 ,sort ="title",direction = Sort.Direction.DESC) Pageable pageable) {
 
         return postService.getAllPost(pageable);
