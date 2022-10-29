@@ -7,6 +7,9 @@ import com.move.review.exception.StatusCode;
 import com.move.review.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +37,7 @@ public class PostController {
     public ResponseEntity<PostResponseDto> writePost(
             @RequestPart(value = "media", required = false) List<MultipartFile> multipartFiles,
             @RequestPart(value = "post") PostRequestDto postRequestDto, // 게시글 작성을 위한 기입 정보들
-            HttpServletRequest request) { // 현재 로그인한 유저의 인증 정보를 확인하기 위한 HttpServletRequest
+            HttpServletRequest request) throws IOException { // 현재 로그인한 유저의 인증 정보를 확인하기 위한 HttpServletRequest
 
         log.info("업로드 요청 미디어 파일들 존재 확인 : {}", multipartFiles);
         log.info("작성 요청 게시글 제목 : {}", postRequestDto.getTitle());
@@ -102,9 +106,10 @@ public class PostController {
     // 게시글 목록 조회
     @ResponseBody
     @GetMapping("/posts")
-    public ResponseEntity<ArrayList<HashMap<String, String>>> getAllPost() {
+    public ResponseEntity<ArrayList<HashMap<String, String>>> getAllPost(
+            @PageableDefault(page =0, size = 10 ,sort ="title",direction = Sort.Direction.DESC) Pageable pageable) {
 
-        return postService.getAllPost();
+        return postService.getAllPost(pageable);
     }
 
 

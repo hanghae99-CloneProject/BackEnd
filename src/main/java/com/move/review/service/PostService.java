@@ -14,6 +14,9 @@ import com.move.review.repository.MediaRepository;
 import com.move.review.repository.PostRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,7 +24,16 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.HashMap;
 
@@ -63,7 +75,7 @@ public class PostService {
     public ResponseEntity<PostResponseDto> writePost(
             List<MultipartFile> multipartFiles,
             PostRequestDto postRequestDto,
-            HttpServletRequest request) {
+            HttpServletRequest request) throws IOException {
 
         // 회원관리 기능이 정상적으로 합쳐진다면 해제
         // authorizeToken(request);
@@ -73,6 +85,10 @@ public class PostService {
                 .selectFrom(member)
                 .where(member.id.eq(1L))
                 .fetchOne();
+
+        String locationAddress = getAddressData(postRequestDto.getLocal());
+        System.out.println(locationAddress);
+
 
         Post post = Post.builder()
                 .title(postRequestDto.getTitle())
@@ -146,16 +162,8 @@ public class PostService {
             PostRequestDto postRequestDto,
             HttpServletRequest request) {
 
-        // 회원 관리 기능과 합쳐진다면 해제
-//        if(request.getHeader("Authorization") == null){
-//            return ResponseDto.fail("NOT_ALLOWED_TOKEN", "권한이 없는 유저입니다.");
-//        }
-//
-//        if(!tokenProvider.validateToken(request.getHeader("Refresh-Token"))){
-//            return ResponseDto.fail("NOT_ALLOWED_TOKEN", "권한이 없는 유저입니다.");
-//        }
-//
-//        Member member = tokenProvider.getMemberFromAuthentication();
+        // 회원관리 기능이 정상적으로 합쳐진다면 해제
+        // authorizeToken(request);
 
         // 구현 동작을 테스트하기 위해 임의 멤버를 사용
         Member test_member = jpaQueryFactory
@@ -251,16 +259,9 @@ public class PostService {
     // 게시글 삭제
     @Transactional
     public ResponseEntity<String> deletePost(Long postId, HttpServletRequest request) {
-        // 회원 관리 기능과 합쳐진다면 해제
-//        if(request.getHeader("Authorization") == null){
-//            return ResponseDto.fail("NOT_ALLOWED_TOKEN", "권한이 없는 유저입니다.");
-//        }
-//
-//        if(!tokenProvider.validateToken(request.getHeader("Refresh-Token"))){
-//            return ResponseDto.fail("NOT_ALLOWED_TOKEN", "권한이 없는 유저입니다.");
-//        }
-//
-//        Member member = tokenProvider.getMemberFromAuthentication();
+
+        // 회원관리 기능이 정상적으로 합쳐진다면 해제
+        // authorizeToken(request);
 
         // 구현 동작을 테스트하기 위해 임의 멤버를 사용
         Member test_member = jpaQueryFactory
@@ -340,7 +341,7 @@ public class PostService {
 
 
     // 게시글 목록 조히
-    public ResponseEntity<ArrayList<HashMap<String, String>>> getAllPost(){
+    public ResponseEntity<ArrayList<HashMap<String, String>>> getAllPost(Pageable pageable){
         List<Post> Allposts = jpaQueryFactory
                 .selectFrom(post)
                 .fetch();
@@ -366,5 +367,44 @@ public class PostService {
 
         return ResponseEntity.ok(posts_map);
 
+    }
+
+
+    // 카카오 지도 API를 활용한 일정한 주소 양식 출력
+    public String getAddressData(String roadFullAddr) throws IOException {
+        String apiKey = "1a123391d0bfd1a3c591465b76664655";
+        String apiUrl = "https://dapi.kakao.com/v2/local/search/address.json";
+        String jsonString = null;
+
+        try {
+            roadFullAddr = URLEncoder.encode(roadFullAddr, "UTF-8");
+
+            String addr = apiUrl + "?query=" + roadFullAddr;
+
+            URL url = new URL(addr);
+            URLConnection conn = url.openConnection();
+            conn.setRequestProperty("Authorization", "KakaoAK " + apiKey);
+
+            BufferedReader rd = null;
+            rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            StringBuffer docJson = new StringBuffer();
+
+            String line;
+
+            while ((line=rd.readLine()) != null) {
+                docJson.append(line);
+            }
+
+            jsonString = docJson.toString();
+            rd.close();
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return jsonString;
     }
 }
