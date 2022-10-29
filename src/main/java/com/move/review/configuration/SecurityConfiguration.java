@@ -61,11 +61,8 @@ public class SecurityConfiguration {
         .authorizeRequests()
         .requestMatchers(CorsUtils::isPreFlightRequest).permitAll() // 추가
         .antMatchers("/api/member/signup",
-                "/api/member/login",
-                "/api/member/id-check",
-                "/api/top-heart",
-//                "/api/reviews",
-                "/api/reviews/{reviewId}").permitAll()
+                // 테스트 중일 때는 권한을 항상 열어둔다.
+                "/bunjang/**").permitAll()
         .antMatchers(HttpMethod.GET,"/api/reviews").permitAll()
         .antMatchers("/api/comments/**").permitAll()
         .antMatchers( "/v2/api-docs",
