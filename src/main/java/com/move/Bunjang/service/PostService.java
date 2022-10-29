@@ -310,6 +310,8 @@ public class PostService {
 
     // 게시글 목록 조회
     public ResponseEntity<PrivateResponseBody> getAllPost(Pageable pageable){
+
+        List<Post> allPosts = postRepository.findAllByOrderByModifiedAtDesc();
         List<Post> Allposts = jpaQueryFactory
                 .selectFrom(post)
                 .fetch();
