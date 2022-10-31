@@ -5,12 +5,14 @@ import com.move.Bunjang.domain.Media;
 import com.move.Bunjang.domain.Post;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -62,6 +64,4 @@ public class PostResponseDto {
 
         return ResponsePostList;
     }
-//    private String whoCreated;
-//    private String whoUpdated;
 }

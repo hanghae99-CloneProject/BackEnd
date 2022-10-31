@@ -51,6 +51,8 @@ public class PostController {
         log.info("작성 요청 게시글 수량 : {}", postRequestDto.getAmount());
         log.info("요청 헤더 : {}", request);
 
+        System.out.println("이제 좀 나와라 : " + postService.writePost(multipartFiles, postRequestDto, request).toString());
+
         return postService.writePost(multipartFiles, postRequestDto, request);
     }
 
