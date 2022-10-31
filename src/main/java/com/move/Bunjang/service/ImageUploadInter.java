@@ -8,8 +8,6 @@ import java.util.List;
 
 public interface ImageUploadInter {
 
-
-
     List<Media> fileUpload(List<MultipartFile> multipartFile, Post post);
     void deleteFile(String fileName);
     String createFileName(String fileName);
