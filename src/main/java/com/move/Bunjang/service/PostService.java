@@ -18,14 +18,9 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import org.springframework.data.domain.Page;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +42,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
-import java.util.Optional;
 
 import java.util.*;
 
@@ -126,8 +120,30 @@ public class PostService {
         // 게시글 작성 정보 저장
         postRepository.save(post);
 
-        // 업로드할 미디어 파일을 해당 게시글과 함께 DB, S3에 저장 후 리스트업 )
-        List<Media> medias = imageUpload.fileUpload(multipartFiles, post);
+        List<Media> medias;
+
+        if(multipartFiles == null){
+            return new ResponseEntity<>(new PrivateResponseBody(StatusCode.OK,
+                    PostResponseDto.builder()
+                            .id(post.getId())
+                            .title(post.getTitle())
+                            .author(post.getAuthor())
+                            .category(post.getCategory())
+                            .local(post.getLocal())
+                            .state(post.getState())
+                            .trade(post.getTrade())
+                            .price(post.getPrice())
+                            .content(post.getContent())
+                            .tag(post.getTag())
+                            .amount(post.getAmount())
+                            .createdAt(post.getCreatedAt())
+                            .modifiedAt(post.getModifiedAt())
+                            .build()), HttpStatus.OK
+            );
+        }else{
+            // 업로드할 미디어 파일을 해당 게시글과 함께 DB, S3에 저장 후 리스트업 )
+            medias = imageUpload.fileUpload(multipartFiles, post);
+        }
 
         // 미디어 파일 업로드는 interface화 시켜 따로 생성하여 이용하였다.
         // 게시글 작성 이외에도 미디어 파일을 업로드할 일이 있을 경우를 대비.
@@ -149,7 +165,9 @@ public class PostService {
                         .medias(medias)
                         .createdAt(post.getCreatedAt())
                         .modifiedAt(post.getModifiedAt())
-                        .build()), HttpStatus.OK);
+                        .build()), HttpStatus.OK
+        );
+
     }
 
 
@@ -169,6 +187,8 @@ public class PostService {
                 .selectFrom(post)
                 .where(post.member.eq(member).and(post.id.eq(postId))) // 본인이 작성하여 게시글을 수정할 수 있는지 확인할 수 있는 조건
                 .fetchOne();
+
+        System.out.println("확인 : " + myPost);
 
         // myPost 가 null 이라면 자신이 작성한 게시글이 아니어서 수정할 수 없다는 뜻.
         if (myPost == null) {
@@ -203,6 +223,8 @@ public class PostService {
                 .selectFrom(media)
                 .where(media.post.eq(myPost))
                 .fetch();
+
+        System.out.println("미디어 확인 : " + medias.get(0));
 
         // 수정할 미디어 파일이 존재하지 않고 현재 게시글에 미디어 파일이 존재할 경우는 넘김
         // 수정할 미디어 파일이 존재하지 않고 현재 게시글에 미디어 파일이 존재하지 않을 경우에도 넘김
@@ -402,8 +424,7 @@ public class PostService {
         }
 
         // 일부 정보들만 보여지는 게시글 리스트 출력
-        return new ResponseEntity<>(new PrivateResponseBody(StatusCode.OK,
-                posts_map), HttpStatus.OK);
+        return new ResponseEntity<>(new PrivateResponseBody(StatusCode.OK, posts_map), HttpStatus.OK);
 
     }
 
