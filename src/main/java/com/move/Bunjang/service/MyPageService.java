@@ -3,17 +3,13 @@ package com.move.Bunjang.service;
 import com.move.Bunjang.controller.response.MypageResponseDto;
 import com.move.Bunjang.controller.response.PostResponseDto;
 import com.move.Bunjang.controller.response.ResponseDto;
-import com.move.Bunjang.domain.Category;
 import com.move.Bunjang.domain.Member;
 import com.move.Bunjang.domain.Post;
 import com.move.Bunjang.jwt.TokenProvider;
 import com.move.Bunjang.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +19,6 @@ import java.util.List;
 public class MyPageService {
     private final PostRepository postRepository;
     private final TokenProvider tokenProvider;
-
 
     @Transactional
     public ResponseDto<?> getMyPage(HttpServletRequest request) {
