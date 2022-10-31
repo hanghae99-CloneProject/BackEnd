@@ -64,7 +64,7 @@ public class MyPageService {
                             .content(post.getContent())
                             .tag(post.getTag())
                             .amount(post.getAmount())
-                          //  .medias(medias)
+                            .medias(post.getMedias())
                             .createdAt(post.getCreatedAt())
                             .modifiedAt(post.getModifiedAt())
                             .build()
