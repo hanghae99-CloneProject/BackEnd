@@ -14,9 +14,9 @@ import com.move.Bunjang.repository.MediaRepository;
 import com.move.Bunjang.repository.PostRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -34,13 +34,11 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Arrays;
 import java.util.List;
 import java.util.HashMap;
+import java.util.Optional;
 
 import static com.move.Bunjang.domain.QMedia.media;
-import static com.move.Bunjang.domain.QMember.member;
 import static com.move.Bunjang.domain.QPost.post;
 
 
@@ -377,5 +375,37 @@ public class PostService {
             e.printStackTrace();
         }
         return jsonString;
+    }
+
+    // 검색 추가 2022-10-30
+
+    @Transactional // 수정 필요
+    public Page<PostResponseDto> getPost(String keyword, String type, int page) {
+        Pageable pageable = PageRequest.of(page - 1, 30);
+        Page<Post> postList;
+        Page<Post> postList2;
+        Page<Post> postList3;
+
+
+        postList = postRepository.findByTitleLike(keyword, pageable);
+        System.out.println("데이터 확인 임시 : " + postList);
+//        if (postList == null) {
+//            postList2 = postRepository.findByAuthorContaining(keyword, pageable);
+//            Page<PostResponseDto> postResponseDtoList = new PostResponseDto().toDtoList(postList2);
+//
+////            if (postList2 == null) {
+////                postList3 = postRepository.findByContentContaining(keyword, pageable);
+////            }
+//        }
+
+
+        Page<PostResponseDto> postResponseDtoList = new PostResponseDto().toDtoList(postList);
+
+        for(PostResponseDto postResponseDto : postResponseDtoList){
+            System.out.println("확인~~~~~ : " + postResponseDto.toString());
+        }
+
+
+        return postResponseDtoList;
     }
 }
