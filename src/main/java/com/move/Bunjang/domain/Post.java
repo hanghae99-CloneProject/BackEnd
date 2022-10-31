@@ -55,7 +55,7 @@ public class Post extends Timestamped{
     private String content;
 
     // 태그
-    @Column(nullable = false)
+    @Column
     private String tag;
 
     // 수량
