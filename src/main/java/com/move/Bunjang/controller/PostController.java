@@ -6,6 +6,7 @@ import com.move.Bunjang.exception.PrivateResponseBody;
 import com.move.Bunjang.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.simple.parser.ParseException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -33,10 +34,11 @@ public class PostController {
     @ResponseBody
     @PostMapping(value = "/posts", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<PrivateResponseBody> writePost(
-            @RequestPart(value = "media", required = false) List<MultipartFile> multipartFiles,
+            @RequestPart(value = "media", required = false) List<MultipartFile> multipartFiles, // 계시글 작성을 위한 미디어 파일들
             @RequestPart(value = "post") PostRequestDto postRequestDto, // 게시글 작성을 위한 기입 정보들
             HttpServletRequest request) throws IOException { // 현재 로그인한 유저의 인증 정보를 확인하기 위한 HttpServletRequest
 
+        // 게시글 작성 내용 확인
         log.info("업로드 요청 미디어 파일들 존재 확인 : {}", multipartFiles);
         log.info("작성 요청 게시글 제목 : {}", postRequestDto.getTitle());
         log.info("작성 요청 게시글 카테고리 : {}", postRequestDto.getCategory());
@@ -49,8 +51,6 @@ public class PostController {
         log.info("작성 요청 게시글 수량 : {}", postRequestDto.getAmount());
         log.info("요청 헤더 : {}", request);
 
-//        return new ResponseEntity<>(
-//                new PrivateResponseBody(StatusCode.OK, postService.writePost(multipartFiles, postRequestDto, request)), HttpStatus.OK);
         return postService.writePost(multipartFiles, postRequestDto, request);
     }
 
@@ -58,11 +58,12 @@ public class PostController {
     @ResponseBody
     @PutMapping(value = "/posts/{postId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<PrivateResponseBody> updatePost(
-            @PathVariable Long postId,
-            @RequestPart(value = "media", required = false) List<MultipartFile> multipartFiles,
+            @PathVariable Long postId, // 수정하고자 하는 게시글의 고유 ID
+            @RequestPart(value = "media", required = false) List<MultipartFile> multipartFiles, // 수정할 미디어 파일들
             @RequestPart(value = "post") PostRequestDto postRequestDto, // 게시글 작성을 위한 기입 정보들
-            HttpServletRequest request) {
+            HttpServletRequest request) throws IOException { // 현재 로그인한 유저의 인증 정보를 확인하기 위한 HttpServletRequest
 
+        // 수정 정보 확인
         log.info("업로드 요청 미디어 파일들 존재 확인 : {}", multipartFiles);
         log.info("작성 요청 게시글 제목 : {}", postRequestDto.getTitle());
         log.info("작성 요청 게시글 카테고리 : {}", postRequestDto.getCategory());
@@ -81,21 +82,23 @@ public class PostController {
         return postService.updatePost(postId, multipartFiles, postRequestDto, request);
     }
 
+
     // 게시글 삭제
     @ResponseBody
     @DeleteMapping("/posts/{postId}")
     public ResponseEntity<PrivateResponseBody> deletePost(
-            @PathVariable Long postId,
-            HttpServletRequest request) {
+            @PathVariable Long postId, // 삭제하고자 하는 게시글의 고유 ID
+            HttpServletRequest request) { // 현재 로그인한 유저의 인증 정보를 확인하기 위한 HttpServletRequest
 
         return postService.deletePost(postId, request);
     }
+
 
     // 특정 게시글 1개 상세 조회
     @ResponseBody
     @GetMapping("/posts/get/{postId}")
     public ResponseEntity<PrivateResponseBody> getPost(
-            @PathVariable Long postId) {
+            @PathVariable Long postId) { // 조회하고자 하는 게시글의 고유 ID
 
         return postService.getPost(postId);
     }
@@ -105,7 +108,7 @@ public class PostController {
     @ResponseBody
     @GetMapping("/posts/get")
     public ResponseEntity<PrivateResponseBody> getAllPost(
-            @PageableDefault(page =0, size = 10 ,sort ="title",direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(page =0, size = 10 ,sort ="createdAt",direction = Sort.Direction.DESC) Pageable pageable) { // 페이징 처리를 위한 인자값
 
         return postService.getAllPost(pageable);
     }

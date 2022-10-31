@@ -26,15 +26,15 @@ import static com.move.Bunjang.domain.QMedia.media;
 
 @RequiredArgsConstructor
 @Service
+// 미디어 파일들을 S3 , DB 에 저장하는 작업을 interface 로 따로 생성
 public class ImageUpload implements ImageUploadInter{
 
     // S3 버킷
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
-    private final AmazonS3 amazonS3;
-    private final JPAQueryFactory jpaQueryFactory;
-    private final MediaRepository mediaRepository;
-
+    private final AmazonS3 amazonS3; // 아마존 S3 사용
+    private final JPAQueryFactory jpaQueryFactory; // QueryDSL 사용
+    private final MediaRepository mediaRepository; // 저장을 위한 Media jpa 사용
 
     // 미디어 파일들을 받아서 저장
     @Override
@@ -86,13 +86,12 @@ public class ImageUpload implements ImageUploadInter{
     // S3에 저장되어있는 미디어 파일 삭제
     @Override
     public void deleteFile(String fileName) {
-
         amazonS3.deleteObject(new DeleteObjectRequest(bucket, fileName));
     }
 
 
 
-    // 먼저 파일 업로드 시, 파일명을 난수화하기 위해 random으로 돌린다. (현재는 굳이 난수화할 필요가 없어보여 사용하지 않음)
+    // 파일 업로드 시, 파일명을 난수화하기 위해 random으로 돌린다. (현재는 굳이 난수화할 필요가 없어보여 사용하지 않음)
     @Override
     public String createFileName(String fileName) {
         return UUID.randomUUID().toString().concat(getFileExtension(fileName));
