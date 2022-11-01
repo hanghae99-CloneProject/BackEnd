@@ -41,7 +41,7 @@ public class MemberService {
     // 비밀번호 중복 확인
     if (!requestDto.getPw().equals(requestDto.getPwConfirm())) {
       return new ResponseEntity<>(new PrivateResponseBody
-              (StatusCode.DUPLICATED_PASSWORD,null),HttpStatus.BAD_REQUEST);
+              (StatusCode.DUPLICATED_PASSWORD,null),HttpStatus.OK);
     }
 
     // 회원 정보 저장
