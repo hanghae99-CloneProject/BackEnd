@@ -43,23 +43,23 @@ jobs:
 
       # application.properties 파일 생성
       - name: make application.properties
-          if: contains(github.ref, 'main')
-          run: |
-            echo "ls -a . & pwd"
-            pwd
-            ls -a .
-            echo "mkdir & touch"
-            mkdir -p ./src/main/resources 
-            cd ./src/main/resources
-            touch ./email_pwd.properties
-            pwd
-            ls -a .
-            echo "copy properties"
-            echo $DEV_PROP >> ./application.properties
-            cat application.properties
-          shell: bash
-          env:
-            DEV_PROP: ${{ application }}
+        if: contains(github.ref, 'main')
+        run: |
+          echo "ls -a . & pwd"
+          pwd
+          ls -a .
+          echo "mkdir & touch"
+          mkdir -p ./src/main/resources 
+          cd ./src/main/resources
+          touch ./email_pwd.properties
+          pwd
+          ls -a .
+          echo "copy properties"
+          echo $DEV_PROP >> ./application.properties
+          cat application.properties
+        shell: bash
+        env:
+          DEV_PROP: ${{ application }}
 
       # (4) AWS 인증 (IAM 사용자 Access Key, Secret Key 활용)
       - name: Configure AWS credentials
