@@ -32,6 +32,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.jetbrains:annotations:20.1.0'
+    implementation 'org.jetbrains:annotations:20.1.0'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'mysql:mysql-connector-java'
     annotationProcessor 'org.projectlombok:lombok'
@@ -85,6 +87,12 @@ configurations {
     }
     querydsl.extendsFrom compileClasspath
 }
+
+// Dockerfile
+//FROM openjdk:11-openjdk
+//ARG JAR_FILE=build/libs/*.jar
+//COPY ${JAR_FILE} app.jar
+//ENTRYPOINT ["java","-jar","/app.jar"]
 
 
 tasks.named('test') {
