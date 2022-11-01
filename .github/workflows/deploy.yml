@@ -45,6 +45,7 @@ jobs:
       - name: make application.properties
         if: contains(github.ref, 'dev')
         run: |
+          ./gradlew build --refresh-dependencies
           echo "ls -a . & pwd"
           pwd
           ls -a .
