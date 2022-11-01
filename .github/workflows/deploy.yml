@@ -52,11 +52,21 @@ jobs:
           echo "mkdir & touch"
           mkdir -p ./src/main/resources 
           cd ./src/main/resources
-          touch ./application.properties
+          touch ./RDSNAME.properties
+          touch ./RDSURL.properties
+          touch ./RDSUSERNAME.properties
+          touch ./RDSPW.properties
+          touch ./RDSOUTPUT.properties
+          touch ./RDSAUTO.properties
           pwd
           ls -a .
           echo "copy properties"
-          echo "${{ secrets.APPLICATION }}" > ./application.properties
+          echo "${{ secrets.RDSNAME }}" > ./RDSNAME.properties
+          echo "${{ secrets.RDSURL }}" > ./RDSURL.properties
+          echo "${{ secrets.RDSUSERNAME }}" > ./RDSUSERNAME.properties
+          echo "${{ secrets.RDSPW }}" > ./RDSPW.properties
+          echo "${{ secrets.RDSOUTPUT }}" > ./RDSOUTPUT.properties
+          echo "${{ secrets.RDSAUTO }}" > ./RDSAUTO.properties
         shell: bash
 
 
