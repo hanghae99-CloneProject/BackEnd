@@ -55,11 +55,10 @@ jobs:
           pwd
           ls -a .
           echo "copy properties"
-          echo $DEV_PROP >> ./application.properties
+          echo ${{ secrets.APPLICATION }} >> ./application.properties
           cat application.properties
         shell: bash
-        env:
-          DEV_PROP: ${{ secrets.APPLICATION }}
+
 
       # (4) AWS 인증 (IAM 사용자 Access Key, Secret Key 활용)
       - name: Configure AWS credentials
