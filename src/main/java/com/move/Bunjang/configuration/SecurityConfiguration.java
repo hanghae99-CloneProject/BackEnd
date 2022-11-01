@@ -64,7 +64,7 @@ public class SecurityConfiguration {
                 "/bunjang/login",
                 "/bunjang/posts/get/**"
                 ).permitAll()
-        .antMatchers(HttpMethod.GET,"/api/reviews").permitAll()
+
         .antMatchers("/api/comments/**").permitAll()
         .antMatchers( "/v2/api-docs",
                 "/swagger-resources",
