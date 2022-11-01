@@ -56,7 +56,6 @@ jobs:
           ls -a .
           echo "copy properties"
           echo ${{ secrets.APPLICATION }} >> ./application.properties
-          cat application.properties
         shell: bash
 
 
