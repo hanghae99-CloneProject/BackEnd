@@ -51,7 +51,7 @@ jobs:
           echo "mkdir & touch"
           mkdir -p ./src/main/resources 
           cd ./src/main/resources
-          touch ./email_pwd.properties
+          touch ./application.properties
           pwd
           ls -a .
           echo "copy properties"
@@ -59,7 +59,7 @@ jobs:
           cat application.properties
         shell: bash
         env:
-          DEV_PROP: ${{ application }}
+          DEV_PROP: ${{ secrets.APPLICATION }}
 
       # (4) AWS 인증 (IAM 사용자 Access Key, Secret Key 활용)
       - name: Configure AWS credentials
