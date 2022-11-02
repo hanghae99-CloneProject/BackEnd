@@ -125,7 +125,7 @@ public class PostController {
     // 장바구니
     @ResponseBody
     @PostMapping("/posts/collect/{postId}")
-    public ResponseEntity<?> collectPost(
+    public ResponseEntity<PrivateResponseBody> collectPost(
             @PathVariable Long postId, // 해당 게시글 고유 ID
             HttpServletRequest request){ // 현재 로그인한 유저의 인증 정보를 확인하기 위한 HttpServletRequest
 
@@ -135,7 +135,7 @@ public class PostController {
     // 장바구니에 담긴 게시글들 조회
     @ResponseBody
     @GetMapping("/posts/collect")
-    public ResponseEntity<?> viewMyCollect(
+    public ResponseEntity<PrivateResponseBody> viewMyCollect(
             HttpServletRequest request){ // 현재 로그인한 유저의 인증 정보를 확인하기 위한 HttpServletRequest
 
         return postService.viewMyCollect(request);

@@ -445,6 +445,8 @@ public class PostService {
             // 전체목록 조회 시 일부의 정보들만 보여지게끔 하기 위해 추가적인 DTO를 생성하지 않고 HashMap 사용
             HashMap<String, String> posts = new HashMap<String, String>();
 
+            // 게시글 고유 ID 값
+            posts.put("id", Long.toString(one_post.getId()));
             // 제목 출력 정보
             posts.put("title", one_post.getTitle());
             // 가격 출력 정보
@@ -573,7 +575,8 @@ public class PostService {
 
     // 장바구니
     @Transactional
-    public ResponseEntity<?> collectPost(Long postId, HttpServletRequest request) {
+    public ResponseEntity<PrivateResponseBody> collectPost(
+            Long postId, HttpServletRequest request) {
         // 인증된 유저 정보 획득
         Member member = authorizeToken(request);
 
@@ -633,7 +636,8 @@ public class PostService {
 
 
     // 장바구니에 담긴 게시글들 조회
-    public ResponseEntity<?> viewMyCollect(HttpServletRequest request){
+    public ResponseEntity<PrivateResponseBody> viewMyCollect(
+            HttpServletRequest request){
         // 인증된 유저 정보 획득
         Member member = authorizeToken(request);
 
