@@ -14,11 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 
 @Validated
 @RequiredArgsConstructor
+@RequestMapping("/bunjang")
 @RestController
 public class MyPageController {
     private final MyPageService myPageService;
 
-    @RequestMapping(value = "/api/auth/mypage", method = RequestMethod.GET)
+    @RequestMapping(value = "/mypage", method = RequestMethod.GET)
     public ResponseDto<?> getMyPage(HttpServletRequest request) {
         return myPageService.getMyPage(request);
     }
