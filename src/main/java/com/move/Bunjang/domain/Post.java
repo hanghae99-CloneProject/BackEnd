@@ -64,12 +64,12 @@ public class Post extends Timestamped{
     private int amount;
 
     // 게시글 작성 시 같이 업로드할 미디어 파일들 (존재하지 않을 수도 있음)
-    @OneToMany(
-            mappedBy = "post",
-            fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
-    private List<Media> medias;
+//    @OneToMany(
+//            mappedBy = "post",
+//            fetch = FetchType.LAZY,
+//            cascade = CascadeType.ALL,
+//            orphanRemoval = true)
+//    private List<Media> medias;
 
     @JoinColumn(name = "memberId", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)

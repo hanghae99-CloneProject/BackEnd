@@ -3,18 +3,22 @@ package com.move.Bunjang.controller.request;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Builder
 @AllArgsConstructor
 @Getter
 public class PostRequestDto {
     private String title;
-    private int category;
+    private String category; // 변경
     private String local;
     private String state;
     private String trade;
-    private int price;
+    private String price; // 변경
     private String content;
     private String tag;
-    private int amount;
+    private String amount; // 변경
+    private String img_id; // 이미지의 아이디값
 }

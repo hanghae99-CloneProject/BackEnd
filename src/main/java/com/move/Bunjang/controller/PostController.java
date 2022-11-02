@@ -3,6 +3,8 @@ package com.move.Bunjang.controller;
 import com.move.Bunjang.controller.request.PostRequestDto;
 import com.move.Bunjang.controller.response.PostResponseDto;
 import com.move.Bunjang.exception.PrivateResponseBody;
+import com.move.Bunjang.exception.StatusCode;
+import com.move.Bunjang.service.ImageUpload;
 import com.move.Bunjang.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +12,7 @@ import org.json.simple.parser.ParseException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -29,17 +32,16 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+    private final ImageUpload imageUpload;
 
     // 게시글 작성 (미디어 포함)
     @ResponseBody
     @PostMapping(value = "/posts", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<PrivateResponseBody> writePost(
-            @RequestPart(value = "media", required = false) List<MultipartFile> multipartFiles, // 계시글 작성을 위한 미디어 파일들
-            @RequestPart(value = "post") PostRequestDto postRequestDto, // 게시글 작성을 위한 기입 정보들
+            @RequestBody PostRequestDto postRequestDto, // 게시글 작성을 위한 기입 정보들
             HttpServletRequest request) throws IOException { // 현재 로그인한 유저의 인증 정보를 확인하기 위한 HttpServletRequest
 
         // 게시글 작성 내용 확인
-        log.info("업로드 요청 미디어 파일들 존재 확인 : {}", multipartFiles);
         log.info("작성 요청 게시글 제목 : {}", postRequestDto.getTitle());
         log.info("작성 요청 게시글 카테고리 : {}", postRequestDto.getCategory());
         log.info("작성 요청 게시글 지역 : {}", postRequestDto.getLocal());
@@ -51,9 +53,7 @@ public class PostController {
         log.info("작성 요청 게시글 수량 : {}", postRequestDto.getAmount());
         log.info("요청 헤더 : {}", request);
 
-        System.out.println("이제 좀 나와라 : " + postService.writePost(multipartFiles, postRequestDto, request).toString());
-
-        return postService.writePost(multipartFiles, postRequestDto, request);
+        return postService.writePost(postRequestDto, request);
     }
 
     // 게시글 수정 (미디어 포함)
@@ -61,12 +61,11 @@ public class PostController {
     @PutMapping(value = "/posts/{postId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<PrivateResponseBody> updatePost(
             @PathVariable Long postId, // 수정하고자 하는 게시글의 고유 ID
-            @RequestPart(value = "media", required = false) List<MultipartFile> multipartFiles, // 수정할 미디어 파일들
-            @RequestPart(value = "post") PostRequestDto postRequestDto, // 게시글 작성을 위한 기입 정보들
+            @RequestBody PostRequestDto postRequestDto, // 게시글 작성을 위한 기입 정보들
             HttpServletRequest request) throws IOException { // 현재 로그인한 유저의 인증 정보를 확인하기 위한 HttpServletRequest
 
         // 수정 정보 확인
-        log.info("업로드 요청 미디어 파일들 존재 확인 : {}", multipartFiles);
+//        log.info("업로드 요청 미디어 파일들 존재 확인 : {}", multipartFiles);
         log.info("작성 요청 게시글 제목 : {}", postRequestDto.getTitle());
         log.info("작성 요청 게시글 카테고리 : {}", postRequestDto.getCategory());
         log.info("작성 요청 게시글 지역 : {}", postRequestDto.getLocal());
@@ -78,12 +77,8 @@ public class PostController {
         log.info("작성 요청 게시글 수량 : {}", postRequestDto.getAmount());
         log.info("요청 헤더 : {}", request);
 
-
-//        return new ResponseEntity<>(
-//                new PrivateResponseBody(StatusCode.OK, postService.updatePost(postId, multipartFiles, postRequestDto, request)), HttpStatus.OK);
-        return postService.updatePost(postId, multipartFiles, postRequestDto, request);
+        return postService.updatePost(postId, postRequestDto, request);
     }
-
 
     // 게시글 삭제
     @ResponseBody
@@ -113,6 +108,16 @@ public class PostController {
             @PageableDefault(page =0, size = 10 ,sort ="createdAt",direction = Sort.Direction.DESC) Pageable pageable) { // 페이징 처리를 위한 인자값
 
         return postService.getAllPost(pageable);
+    }
+
+
+    @ResponseBody
+    @PostMapping(value = "/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PrivateResponseBody> mediaUpload(
+            @RequestPart(value = "file") MultipartFile multipartFiles){
+
+        return new ResponseEntity<>(new PrivateResponseBody(
+                StatusCode.OK,imageUpload.fileUpload(multipartFiles)), HttpStatus.OK);
     }
 
 
