@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -75,6 +76,7 @@ public class Post extends Timestamped{
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 
-
+    @OneToMany(mappedBy = "post",fetch = FetchType.LAZY,cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ShoppingBasket> shoppingBaskets  = new ArrayList<>();
 
 }

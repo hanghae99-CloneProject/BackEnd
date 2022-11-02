@@ -111,14 +111,34 @@ public class PostController {
     }
 
 
+    // 이미지 업로드
     @ResponseBody
     @PostMapping(value = "/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PrivateResponseBody> mediaUpload(
-            @RequestPart(value = "file") MultipartFile multipartFiles){
+            @RequestPart(value = "file") MultipartFile multipartFiles){ // 처음 등록된 이미지, 업데이트할 이미지
 
         return new ResponseEntity<>(new PrivateResponseBody(
                 StatusCode.OK,imageUpload.fileUpload(multipartFiles)), HttpStatus.OK);
     }
 
+
+    // 장바구니
+    @ResponseBody
+    @PostMapping("/posts/collect/{postId}")
+    public ResponseEntity<?> collectPost(
+            @PathVariable Long postId, // 해당 게시글 고유 ID
+            HttpServletRequest request){ // 현재 로그인한 유저의 인증 정보를 확인하기 위한 HttpServletRequest
+
+        return postService.collectPost(postId, request);
+    }
+
+    // 장바구니에 담긴 게시글들 조회
+    @ResponseBody
+    @GetMapping("/posts/collect")
+    public ResponseEntity<?> viewMyCollect(
+            HttpServletRequest request){ // 현재 로그인한 유저의 인증 정보를 확인하기 위한 HttpServletRequest
+
+        return postService.viewMyCollect(request);
+    }
 
 }

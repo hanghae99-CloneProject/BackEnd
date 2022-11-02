@@ -4,16 +4,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.move.Bunjang.controller.request.PostRequestDto;
 import com.move.Bunjang.controller.response.PostResponseDto;
-import com.move.Bunjang.domain.Category;
-import com.move.Bunjang.domain.Media;
-import com.move.Bunjang.domain.Member;
-import com.move.Bunjang.domain.Post;
+import com.move.Bunjang.domain.*;
 import com.move.Bunjang.exception.PrivateException;
 import com.move.Bunjang.exception.PrivateResponseBody;
 import com.move.Bunjang.exception.StatusCode;
 import com.move.Bunjang.jwt.TokenProvider;
 import com.move.Bunjang.repository.MediaRepository;
 import com.move.Bunjang.repository.PostRepository;
+import com.move.Bunjang.repository.ShoppingBasketRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
@@ -48,17 +47,20 @@ import java.util.*;
 import static com.move.Bunjang.domain.QMember.member;
 import static com.move.Bunjang.domain.QMedia.media;
 import static com.move.Bunjang.domain.QPost.post;
+import static com.move.Bunjang.domain.QShoppingBasket.shoppingBasket;
 
 
 @RequiredArgsConstructor
 @Service
 public class PostService {
 
+    private int collect_count;
     private final JPAQueryFactory jpaQueryFactory;
     private final EntityManager em;
     private final TokenProvider tokenProvider;
     private final MediaRepository mediaRepository;
     private final PostRepository postRepository;
+    private final ShoppingBasketRepository shoppingBasketRepository;
     private final ImageUpload imageUpload;
 
 
@@ -248,7 +250,7 @@ public class PostService {
         // 수정할 media 파일이 존재하지 않고 현재 게시글에 media 파일이 존재하지 않을 경우에도 넘김
 
         // 수정할 media 파일이 존재하고, 기존에 등록된 media 파일이 존재할 경우 수정
-        if(update_media != null && exist_media != null){
+        if (update_media != null && exist_media != null) {
             // 기존 DB에 존재하는 미디어 파일에 update_media 데이터로 업데이트
             jpaQueryFactory
                     .update(media)
@@ -267,9 +269,9 @@ public class PostService {
             // S3에서도 업데이트 하기 위한 새로운 데이터를 기존 미디어 데이터에 업데이트한 후 삭제처리
             imageUpload.deleteFile(update_media.getMediaName());
 
-        // 수정할 media 파일이 존재하고, 기존에 등록된 media 파일이 존재하지 않을 경우
-        // 수정할 media 파일을 게시글에 새로 매핑시켜 묶어준다
-        }else if(update_media != null && exist_media == null){
+            // 수정할 media 파일이 존재하고, 기존에 등록된 media 파일이 존재하지 않을 경우
+            // 수정할 media 파일을 게시글에 새로 매핑시켜 묶어준다
+        } else if (update_media != null && exist_media == null) {
             jpaQueryFactory.update(media)
                     .set(media.post_id, myPost.getId())
                     .where(media.id.eq(update_media.getId())) // 수정할 media 파일의 post_id 속성에 해당 게시글 고유 id를 부여하여 묶어줌
@@ -565,7 +567,121 @@ public class PostService {
             System.out.println("확인~~~~~ : " + postResponseDto.toString());
         }
 
-
         return postResponseDtoList;
     }
+
+
+    // 장바구니
+    @Transactional
+    public ResponseEntity<?> collectPost(Long postId, HttpServletRequest request) {
+        // 인증된 유저 정보 획득
+        Member member = authorizeToken(request);
+
+        // 현재 장바구니에 담고자하는 게시글
+        Post now_post = jpaQueryFactory
+                .selectFrom(post)
+                .where(post.id.eq(postId))
+                .fetchOne();
+
+        // 해당 게시글을 장바구니에 담긴 적이 없다면 발동하는 조건
+        if (jpaQueryFactory
+                .selectFrom(QShoppingBasket.shoppingBasket)
+                .where(QShoppingBasket.shoppingBasket.post.eq(now_post))
+                .fetchOne() == null) {
+
+            // 장바구니에 담을 게시글과 멤버의 정보 대입
+            ShoppingBasket shoppingBasket = ShoppingBasket.builder()
+                    .post(now_post)
+                    .member(member)
+                    .build();
+
+            // 장바구니에 저장
+            shoppingBasketRepository.save(shoppingBasket);
+
+            // 장바구니에 담긴 것을 뜻하는 count + 1
+            collect_count = collect_count + 1;
+
+        } else {
+            // 해당 게시글을 장바구니에 담긴 적이 있다면 발동하는 조건
+            // 장바구니에 담긴 적이 있다면 다시 버튼을 눌렀을 때 해제가 되어야 함.
+
+            // 장바구니에 담긴 것을 해제한다는 것을 뜻하는 count - 1
+            collect_count = collect_count - 1;
+
+            // 장바구니 담기 버튼을 다시 누르면 장바구니에 담긴 데이터 삭제
+            jpaQueryFactory
+                    .delete(QShoppingBasket.shoppingBasket)
+                    .where(QShoppingBasket.shoppingBasket.post.eq(now_post).and(shoppingBasket.member.eq(member)))
+                    .execute();
+        }
+
+        // 현재 장바구니에 담긴 데이터들의 수량을 센다.
+        // 장바구니 버튼에 시각적으로 보여지는 수량 숫자
+        List<ShoppingBasket> shoppingBaskets_count = jpaQueryFactory
+                .selectFrom(QShoppingBasket.shoppingBasket)
+                .fetch();
+
+        // 장바구니에 담긴 수량만 보여지면 되는것이기 때문에 Dto를 따로 만들지 않고
+        // hashmap으로 장바구니 수량 정보만 넘긴다.
+        HashMap<String, Integer> basketcount = new HashMap<>();
+        // 키 값을 주고, 수량을 담아서 넣어준다.
+        basketcount.put("basketcount", shoppingBaskets_count.size());
+
+        return new ResponseEntity<>(new PrivateResponseBody(
+                StatusCode.OK, basketcount), HttpStatus.OK);
+    }
+
+
+    // 장바구니에 담긴 게시글들 조회
+    public ResponseEntity<?> viewMyCollect(HttpServletRequest request){
+        // 인증된 유저 정보 획득
+        Member member = authorizeToken(request);
+
+        // 구현 동작을 테스트하기 위해 임의 멤버를 사용
+//        Member test_member = jpaQueryFactory
+//                .selectFrom(member)
+//                .where(member.memberId.eq(1L))
+//                .fetchOne();
+
+        // 유저가 장바구니에 담은 게시글들 전부 불러오기
+        List<ShoppingBasket> shoppingBaskets = jpaQueryFactory
+                .selectFrom(shoppingBasket)
+                .where(shoppingBasket.member.eq(member))
+                .fetch();
+
+        // Dto 를 사용할 것이 아니라 정확히 일부의 데이터들만 보여주기 위한 hashMap 생성
+        List<HashMap<String, String>> shoppingBasketList = new ArrayList<>();
+
+        // 장바구니에 담긴 게시글들 하나씩 조회
+        for(ShoppingBasket shoppingBasket : shoppingBaskets){
+            // 필수 출력 데이터들만 뽑아서 쓸 수 있게 hashmap으로 생성
+            HashMap<String, String> each_shoppingBasket = new HashMap<>();
+
+            // 장바구니에 담긴 각 게시글을 불러오기
+            Post each_post = jpaQueryFactory
+                    .selectFrom(post)
+                    .where(post.id.eq(shoppingBasket.getPost().getId()))
+                    .fetchOne();
+
+            // 썸네일 사진을 보여주기 위해 each_post에 등록되어있는 media 파일 불러오기
+            Media each_media = jpaQueryFactory
+                    .selectFrom(media)
+                    .where(media.post_id.eq(each_post.getId()))
+                    .fetchOne();
+
+            // hashmap 에 출력 정보들 저장
+            each_shoppingBasket.put("mediaName",each_media.getMediaName()); // 썸네일 사진의 이름
+            each_shoppingBasket.put("mediaUrl",each_media.getMediaUrl()); // 썸네일 사진 url
+            each_shoppingBasket.put("title",each_post.getTitle()); // 게시글 제목
+            each_shoppingBasket.put("price",Integer.toString(each_post.getPrice())); // 판매 제품 가격
+            each_shoppingBasket.put("local",each_post.getLocal()); // 판매 지역
+
+            // hashmap으로 저장한 데이터들을 하나로 묶어서 Hashmap list에 저장
+            shoppingBasketList.add(each_shoppingBasket);
+        }
+
+        return new ResponseEntity<>(new PrivateResponseBody(
+                StatusCode.OK, shoppingBasketList), HttpStatus.OK);
+    }
+
 }
