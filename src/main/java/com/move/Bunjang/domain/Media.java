@@ -25,10 +25,13 @@ public class Media extends Timestamped{
     @Column(nullable = false)
     private String mediaUrl;
 
-    @JsonIgnore
-    @JoinColumn(name = "postId", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Post post;
+    @Column
+    private Long post_id = 0L;
+
+//    @JsonIgnore
+//    @JoinColumn(name = "postId", nullable = false)
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    private Post post;
 
 
 }

@@ -28,7 +28,7 @@ public class PostResponseDto {
     private String content;
     private String tag;
     private int amount;
-    private List<Media> medias;
+    private Media media;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -49,7 +49,6 @@ public class PostResponseDto {
                 .content(m.getContent())
                 .tag(m.getTag())
                 .amount(m.getAmount())
-                .medias(m.getMedias())
                 .createdAt(m.getCreatedAt())
                 .modifiedAt(m.getModifiedAt())
                 .build()
