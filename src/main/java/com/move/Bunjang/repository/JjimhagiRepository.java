@@ -5,5 +5,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface JjimhagiRepository extends JpaRepository<Jjimhagi, Long> {
-    Jjimhagi findByPostIdAndMemberId(Long postId, Long memberId);
+    Jjimhagi findByPost_IdAndMember_MemberId(Long id, Long memberId);
+ // Jjimhagi findByPostIdAndMemberId(Long postId, Long memberId); // JPA BUDDY
 }

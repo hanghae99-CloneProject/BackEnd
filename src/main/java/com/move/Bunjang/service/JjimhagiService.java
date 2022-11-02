@@ -59,7 +59,7 @@ public class JjimhagiService {
         }
 
         // 찜하기 취소
-        Jjimhagi findJjimhagi = jjimhagiRepository.findByPostIdAndMemberId(presentPost.getId(), member.getMemberId());
+        Jjimhagi findJjimhagi = jjimhagiRepository.findByPost_IdAndMember_MemberId(presentPost.getId(), member.getMemberId());
         if(null != findJjimhagi ) {
             jjimhagiRepository.delete(findJjimhagi);
             return ResponseDto.success("찜하기 취소");

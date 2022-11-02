@@ -239,7 +239,7 @@ public class PostService {
                 .set(post.content, postRequestDto.getContent()) // 내용 수정
                 .set(post.tag, postRequestDto.getTag()) // 연관 태그 수정
                 .set(post.amount, Integer.parseInt(postRequestDto.getAmount())) // 수량 수정
-                .set(Collections.singletonList(post.jjimhagi), Collections.singletonList(Integer.parseInt(postRequestDto.getJjimhagiCount()))) // 찜하기카운트 추가 2022-11-02 doosan add
+                .set(post.jjimhagiCount,Long.parseLong(postRequestDto.getJjimhagiCount())) // 추가 수정 필요
                 .where(post.id.eq(postId)) // 선택한 게시글 고유 ID에 해당하는 게시글을 수정한다는 조건
                 .execute();
 

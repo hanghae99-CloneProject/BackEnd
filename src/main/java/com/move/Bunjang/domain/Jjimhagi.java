@@ -15,7 +15,7 @@ import javax.persistence.*;
 public class Jjimhagi {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long JjimhagiId;
 
     @JoinColumn(name = "member_id" , nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
