@@ -116,6 +116,7 @@ public class PostService {
                 .tag(postRequestDto.getTag()) // 연관태그 (태그를 기입하게 되면 태그 키워드에 연관된 등록 상품들이 리스트업)
                 .amount(Integer.parseInt(postRequestDto.getAmount())) // 판매 제품 수량
                 .member(member) // 판매자 고유 ID (구분값)
+                .jjimhagiCount((long) Integer.parseInt(postRequestDto.getJjimhagiCount())) // 찜하기카운트 추가 2022-11-02 doosan add
                 .build();
 
         // 게시글 작성 정보 저장
@@ -153,6 +154,7 @@ public class PostService {
                             .amount(post.getAmount())
                             .createdAt(post.getCreatedAt())
                             .modifiedAt(post.getModifiedAt())
+                            .jjimhagiCount(post.getJjimhagiCount()) // 찜하기 카운트 추가 2022-11-02  doosan add
                             .build()), HttpStatus.OK
             );
         }
@@ -210,6 +212,17 @@ public class PostService {
             throw new PrivateException(StatusCode.NOT_MATCH_POST);
         }
 
+        // 현재 작성된 게시글 체크 2022-11-02 doosan 추가
+        Post presentPost = jpaQueryFactory
+                .selectFrom(post)
+                .where(post.member.eq(member).and(post.id.eq(postId)))
+                .fetchOne();
+
+        // POST가 NULL 이면 작성한 게스글이 없어서 수정할 수 없다. 2022-11-02 doosan 추가
+        if (presentPost == null) {
+            throw new PrivateException(StatusCode.POST_ERROR);
+        }
+
         // 게시글 업로드 시 기입하는 위치 정보를 공통화하기 위해 kakao 지역 API 사용 (시,구 ,동 까지 출력)
         String address_name = getAddressData(postRequestDto.getLocal());
         System.out.println("게시글 수정 시 카카오 API 반영 지역 : " + address_name);
@@ -226,6 +239,7 @@ public class PostService {
                 .set(post.content, postRequestDto.getContent()) // 내용 수정
                 .set(post.tag, postRequestDto.getTag()) // 연관 태그 수정
                 .set(post.amount, Integer.parseInt(postRequestDto.getAmount())) // 수량 수정
+                .set(Collections.singletonList(post.jjimhagi), Collections.singletonList(Integer.parseInt(postRequestDto.getJjimhagiCount()))) // 찜하기카운트 추가 2022-11-02 doosan add
                 .where(post.id.eq(postId)) // 선택한 게시글 고유 ID에 해당하는 게시글을 수정한다는 조건
                 .execute();
 
@@ -537,7 +551,7 @@ public class PostService {
         return address_name;
     }
 
-    // 검색 추가 2022-10-30
+    // 검색 추가 2022-10-30 doosan add
 
     @Transactional // 수정 필요
     public Page<PostResponseDto> getPost(String keyword, String type, int page) {
@@ -549,23 +563,11 @@ public class PostService {
 
         postList = postRepository.findByTitleLike(keyword, pageable);
         System.out.println("데이터 확인 임시 : " + postList);
-//        if (postList == null) {
-//            postList2 = postRepository.findByAuthorContaining(keyword, pageable);
-//            Page<PostResponseDto> postResponseDtoList = new PostResponseDto().toDtoList(postList2);
-//
-////            if (postList2 == null) {
-////                postList3 = postRepository.findByContentContaining(keyword, pageable);
-////            }
-//        }
-
 
         Page<PostResponseDto> postResponseDtoList = new PostResponseDto().toDtoList(postList);
-
         for (PostResponseDto postResponseDto : postResponseDtoList) {
             System.out.println("확인~~~~~ : " + postResponseDto.toString());
         }
-
-
         return postResponseDtoList;
     }
 }

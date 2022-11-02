@@ -30,7 +30,11 @@ public class Post extends Timestamped{
     @Column(nullable = false)
     private String author;
 
-    // 카테고리 수정 - 2022-10-29 오후 10시 13분
+    // 찜하기 카운트 추가 2022- 11-02  doosan add
+    @Column
+    private Long jjimhagiCount;
+
+    // 카테고리 수정 - 2022-10-29 오후 10시 13분 doosan add
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Category category;

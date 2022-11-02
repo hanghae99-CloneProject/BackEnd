@@ -31,6 +31,7 @@ public class PostResponseDto {
     private Media media;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+    private Long jjimhagiCount; // 찜하기 카운트 추가 2022-11-02  doosan add
 
     public Page<PostResponseDto> toDtoList(Page<Post> postList) {
         Page<PostResponseDto> ResponsePostList = postList.map(m -> PostResponseDto.builder()
@@ -51,6 +52,7 @@ public class PostResponseDto {
                 .amount(m.getAmount())
                 .createdAt(m.getCreatedAt())
                 .modifiedAt(m.getModifiedAt())
+                .jjimhagiCount(m.getJjimhagiCount()) // 찜하기 카운트 추가 2022-11-02  doosan add
                 .build()
         );
 

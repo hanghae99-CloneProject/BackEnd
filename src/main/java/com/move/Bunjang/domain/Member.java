@@ -34,6 +34,10 @@ public class Member extends Timestamped {
     @OneToMany(mappedBy = "member",fetch = FetchType.LAZY,cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts = new ArrayList<>();
 
+    // 찜하기 추가
+    @OneToMany(mappedBy = "member",fetch = FetchType.LAZY,cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Jjimhagi> jjimhagis = new ArrayList<>();
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

@@ -21,4 +21,6 @@ public class PostRequestDto {
     private String tag;
     private String amount; // 변경
     private String img_id; // 이미지의 아이디값
+    private String jjimhagiCount; // 찜하기 카운트 2022-11-02 doosan add
+
 }
