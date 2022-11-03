@@ -1,5 +1,6 @@
 package com.move.Bunjang.configuration;
 
+import com.move.Bunjang.shared.WebSockChatHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.WebSocketHandler;
@@ -12,6 +13,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @EnableWebSocket
 public class WebSockConfig implements WebSocketConfigurer {
     private final WebSocketHandler webSocketHandler;
+    private final WebSockChatHandler webSockChatHandler;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {

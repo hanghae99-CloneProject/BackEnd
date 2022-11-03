@@ -30,11 +30,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
-
     implementation 'org.jetbrains:annotations:20.1.0'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     compileOnly 'org.projectlombok:lombok'
-//    runtimeOnly 'mysql:mysql-connector-java'
+    runtimeOnly 'mysql:mysql-connector-java'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
@@ -54,22 +53,20 @@ dependencies {
     // AWS S3
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
-    // json object
-    implementation 'org.json:json:20220924'
-
     // querydsl 디펜던시 추가
     implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
     implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
 
     // JSONObject
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+    implementation 'org.json:json:20220924'
 
     // WebSocket
     compile 'org.springframework.boot:spring-boot-starter-mustache'
-    compile 'org.springframework.boot:spring-boot-starter-websocket'
-//    compile 'org.webjars.bower:jquery:3.6.1'
-//    compile 'org.webjars:sockjs-client:1.5.1'
-//    compile 'org.webjars:webjars-locator:0.45'
+//    compile 'org.springframework.boot:spring-boot-starter-websocket'
+    compile 'org.webjars.bower:jquery:3.6.1'
+    compile 'org.webjars:sockjs-client:1.5.1'
+    compile 'org.webjars:webjars-locator:0.45'
     runtimeOnly 'org.springframework.boot:spring-boot-devtools'
 
     // pub/sub

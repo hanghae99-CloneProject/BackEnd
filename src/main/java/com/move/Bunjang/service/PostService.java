@@ -129,6 +129,12 @@ public class PostService {
                 .where(media.id.eq(Long.parseLong(postRequestDto.getImg_id())))
                 .fetchOne();
 
+        // 미디어 파일이 존재하지 않으면 게시글을 작성할 수 없음.
+        if (exist_media == null) {
+            // 미디어 파일이 존재하지 않으면 게시글을 작성할 수 없음
+            throw new PrivateException(StatusCode.NOT_EXIST_MEDIA);
+        }
+
         // 불러온 media 파일을 post_id 칼럼에 작성 게시글의 고유 id 를 부여하여 연결해준다.
         jpaQueryFactory
                 .update(media)
@@ -138,25 +144,23 @@ public class PostService {
 
         em.flush();
 
-        // media 파일을 등록하지 않을경우 제외하고 출력
-        if (postRequestDto.getImg_id() == null) {
-            return new ResponseEntity<>(new PrivateResponseBody(StatusCode.OK,
-                    PostResponseDto.builder()
-                            .id(post.getId())
-                            .title(post.getTitle())
-                            .author(post.getAuthor())
-                            .category(post.getCategory())
-                            .local(post.getLocal())
-                            .state(post.getState())
-                            .trade(post.getTrade())
-                            .price(post.getPrice())
-                            .content(post.getContent())
-                            .tag(post.getTag())
-                            .amount(post.getAmount())
-                            .createdAt(post.getCreatedAt())
-                            .modifiedAt(post.getModifiedAt())
-                            .build()), HttpStatus.OK
-            );
+
+        // 이미지 넣었다가 다시 다른 이미지를 넣었다가 했을 경우, 의미없이 저장된 이미지들을 삭제해줘야한다.
+        List<Media> null_postid_medias = jpaQueryFactory
+                .selectFrom(media)
+                .where(media.post_id.isNull())
+                .fetch();
+
+        if(null_postid_medias != null){
+            for(Media null_postid_media : null_postid_medias){
+                jpaQueryFactory
+                        .delete(media)
+                        .where(media.id.eq(null_postid_media.getId()))
+                        .execute();
+
+                // s3 쪽도 미디어파일 이름을 기준으로 삭제되도록 구현.
+                imageUpload.deleteFile(null_postid_media.getMediaName());
+            }
         }
 
         // 미디어 파일 업로드는 interface화 시켜 따로 생성하여 이용하였다.
@@ -281,6 +285,24 @@ public class PostService {
 
             // 최종적으로 exist_media가 출력되어져야하기 떄문에 update_media를 반영시켜줌
             exist_media = update_media;
+        }
+
+        // 이미지 넣었다가 다시 다른 이미지를 넣었다가 했을 경우, 의미없이 저장된 이미지들을 삭제해줘야한다.
+        List<Media> null_postid_medias = jpaQueryFactory
+                .selectFrom(media)
+                .where(media.post_id.isNull())
+                .fetch();
+
+        if(null_postid_medias != null){
+            for(Media null_postid_media : null_postid_medias){
+                jpaQueryFactory
+                        .delete(media)
+                        .where(media.id.eq(null_postid_media.getId()))
+                        .execute();
+
+                // s3 쪽도 미디어파일 이름을 기준으로 삭제되도록 구현.
+                imageUpload.deleteFile(null_postid_media.getMediaName());
+            }
         }
 
         // <설계 수정 전>
@@ -637,7 +659,7 @@ public class PostService {
 
     // 장바구니에 담긴 게시글들 조회
     public ResponseEntity<PrivateResponseBody> viewMyCollect(
-            HttpServletRequest request){
+            HttpServletRequest request) {
         // 인증된 유저 정보 획득
         Member member = authorizeToken(request);
 
@@ -657,7 +679,7 @@ public class PostService {
         List<HashMap<String, String>> shoppingBasketList = new ArrayList<>();
 
         // 장바구니에 담긴 게시글들 하나씩 조회
-        for(ShoppingBasket shoppingBasket : shoppingBaskets){
+        for (ShoppingBasket shoppingBasket : shoppingBaskets) {
             // 필수 출력 데이터들만 뽑아서 쓸 수 있게 hashmap으로 생성
             HashMap<String, String> each_shoppingBasket = new HashMap<>();
 
@@ -674,11 +696,11 @@ public class PostService {
                     .fetchOne();
 
             // hashmap 에 출력 정보들 저장
-            each_shoppingBasket.put("mediaName",each_media.getMediaName()); // 썸네일 사진의 이름
-            each_shoppingBasket.put("mediaUrl",each_media.getMediaUrl()); // 썸네일 사진 url
-            each_shoppingBasket.put("title",each_post.getTitle()); // 게시글 제목
-            each_shoppingBasket.put("price",Integer.toString(each_post.getPrice())); // 판매 제품 가격
-            each_shoppingBasket.put("local",each_post.getLocal()); // 판매 지역
+            each_shoppingBasket.put("mediaName", each_media.getMediaName()); // 썸네일 사진의 이름
+            each_shoppingBasket.put("mediaUrl", each_media.getMediaUrl()); // 썸네일 사진 url
+            each_shoppingBasket.put("title", each_post.getTitle()); // 게시글 제목
+            each_shoppingBasket.put("price", Integer.toString(each_post.getPrice())); // 판매 제품 가격
+            each_shoppingBasket.put("local", each_post.getLocal()); // 판매 지역
 
             // hashmap으로 저장한 데이터들을 하나로 묶어서 Hashmap list에 저장
             shoppingBasketList.add(each_shoppingBasket);
