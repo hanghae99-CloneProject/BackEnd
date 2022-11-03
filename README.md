@@ -1,4 +1,4 @@
-### mini project
+### clone project
 
 
 <h3 align="center"><b>번개장터 클론 프로젝트</b></h3>
