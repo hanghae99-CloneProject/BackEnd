@@ -129,6 +129,12 @@ public class PostService {
                 .where(media.id.eq(Long.parseLong(postRequestDto.getImg_id())))
                 .fetchOne();
 
+        // 미디어 파일이 존재하지 않으면 게시글을 작성할 수 없음.
+        if(exist_media == null){
+            // 미디어 파일이 존재하지 않으면 게시글을 작성할 수 없음
+            throw new PrivateException(StatusCode.NOT_EXIST_MEDIA);
+        }
+
         // 불러온 media 파일을 post_id 칼럼에 작성 게시글의 고유 id 를 부여하여 연결해준다.
         jpaQueryFactory
                 .update(media)
