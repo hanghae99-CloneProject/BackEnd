@@ -86,7 +86,7 @@ public class PostController {
     public ResponseEntity<PrivateResponseBody> deletePost(
             @PathVariable Long postId, // 삭제하고자 하는 게시글의 고유 ID
             HttpServletRequest request) { // 현재 로그인한 유저의 인증 정보를 확인하기 위한 HttpServletRequest
-
+        System.out.println("게시글 아이디 넘어오는지확인 : " + postId);
         return postService.deletePost(postId, request);
     }
 

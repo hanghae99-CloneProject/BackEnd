@@ -145,13 +145,20 @@ public class PostService {
         em.flush();
 
 
-        // 이미지 넣었다가 다시 다른 이미지를 넣었다가 했을 경우, 의미없이 저장된 이미지들을 삭제해줘야한다.
-        List<Media> null_postid_medias = jpaQueryFactory
-                .selectFrom(media)
-                .where(media.post_id.isNull())
-                .fetch();
 
-        if (null_postid_medias != null) {
+//        List<Media> null_postid_medias = jpaQueryFactory
+//                .selectFrom(media)
+//                .where(media.post_id.isNull())
+//                .fetch();
+
+
+        // 이미지 넣었다가 다시 다른 이미지를 넣었다가 했을 경우, 의미없이 저장된 이미지들을 삭제해줘야한다.
+        if (jpaQueryFactory.selectFrom(media).where(media.post_id.isNull()).fetch() != null) {
+            List<Media> null_postid_medias = jpaQueryFactory
+                    .selectFrom(media)
+                    .where(media.post_id.isNull())
+                    .fetch();
+
             for (Media null_postid_media : null_postid_medias) {
                 jpaQueryFactory
                         .delete(media)
@@ -288,12 +295,12 @@ public class PostService {
         }
 
         // 이미지 넣었다가 다시 다른 이미지를 넣었다가 했을 경우, 의미없이 저장된 이미지들을 삭제해줘야한다.
-        List<Media> null_postid_medias = jpaQueryFactory
-                .selectFrom(media)
-                .where(media.post_id.isNull())
-                .fetch();
+        if (jpaQueryFactory.selectFrom(media).where(media.post_id.isNull()).fetch() != null) {
+            List<Media> null_postid_medias = jpaQueryFactory
+                    .selectFrom(media)
+                    .where(media.post_id.isNull())
+                    .fetch();
 
-        if (null_postid_medias != null) {
             for (Media null_postid_media : null_postid_medias) {
                 jpaQueryFactory
                         .delete(media)
