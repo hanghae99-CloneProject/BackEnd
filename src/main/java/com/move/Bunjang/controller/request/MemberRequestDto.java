@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 
 @Getter
 @NoArgsConstructor
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotBlank;
 public class MemberRequestDto {
 
   @NotBlank
+  @Pattern(regexp ="^[a-zA-Z0-9]+@[a-zA-Z]+.[a-z]+${4,12}$", message = "{memberid.option}" )
   private String email;
 
   @NotBlank

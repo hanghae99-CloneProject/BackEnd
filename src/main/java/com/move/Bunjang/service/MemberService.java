@@ -35,7 +35,7 @@ public class MemberService {
     // 아이디 중복 확인
     if (null != isPresentMember(requestDto.getEmail())) {
       return new ResponseEntity<>(new PrivateResponseBody
-              (StatusCode.DUPLICATED_NICKNAME,null),HttpStatus.BAD_REQUEST);
+              (StatusCode.DUPLICATED_NICKNAME,null),HttpStatus.OK);
     }
 
     // 비밀번호 중복 확인
