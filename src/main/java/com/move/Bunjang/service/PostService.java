@@ -157,6 +157,9 @@ public class PostService {
                         .delete(media)
                         .where(media.id.eq(null_postid_media.getId()))
                         .execute();
+
+                // s3 쪽도 미디어파일 이름을 기준으로 삭제되도록 구현.
+                imageUpload.deleteFile(null_postid_media.getMediaName());
             }
         }
 
@@ -296,6 +299,9 @@ public class PostService {
                         .delete(media)
                         .where(media.id.eq(null_postid_media.getId()))
                         .execute();
+
+                // s3 쪽도 미디어파일 이름을 기준으로 삭제되도록 구현.
+                imageUpload.deleteFile(null_postid_media.getMediaName());
             }
         }
 
