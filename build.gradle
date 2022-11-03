@@ -38,7 +38,12 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+
     implementation 'org.mariadb.jdbc:mariadb-java-client:3.0.8'
+
+
+    //Gson 추가
+    implementation 'com.google.code.gson:gson:2.9.0'
 
 
     // JWT
@@ -117,6 +122,10 @@ configurations {
 //COPY ${JAR_FILE} app.jar
 //ENTRYPOINT ["java","-jar","/app.jar"]
 
+// 도커 자동화배포 오류 수정
+jar {
+    enabled = false
+}
 
 tasks.named('test') {
     useJUnitPlatform()
