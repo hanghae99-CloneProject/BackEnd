@@ -151,8 +151,8 @@ public class PostService {
                 .where(media.post_id.isNull())
                 .fetch();
 
-        if(null_postid_medias != null){
-            for(Media null_postid_media : null_postid_medias){
+        if (null_postid_medias != null) {
+            for (Media null_postid_media : null_postid_medias) {
                 jpaQueryFactory
                         .delete(media)
                         .where(media.id.eq(null_postid_media.getId()))
@@ -293,8 +293,8 @@ public class PostService {
                 .where(media.post_id.isNull())
                 .fetch();
 
-        if(null_postid_medias != null){
-            for(Media null_postid_media : null_postid_medias){
+        if (null_postid_medias != null) {
+            for (Media null_postid_media : null_postid_medias) {
                 jpaQueryFactory
                         .delete(media)
                         .where(media.id.eq(null_postid_media.getId()))
@@ -430,25 +430,48 @@ public class PostService {
                 .where(media.post_id.eq(view_post.getId()))
                 .fetchOne();
 
+        HashMap<String, String> post_info = new HashMap<>();
+
+        post_info.put("id", Long.toString(view_post.getId()));
+        post_info.put("title", view_post.getTitle());
+        post_info.put("author", view_post.getAuthor());
+        post_info.put("category", view_post.getCategory().toString());
+        post_info.put("local", view_post.getLocal());
+        post_info.put("state", view_post.getState());
+        post_info.put("trade", view_post.getTrade());
+        post_info.put("price", Integer.toString(view_post.getPrice()));
+        post_info.put("content", view_post.getContent());
+        post_info.put("tag", view_post.getTag());
+        post_info.put("mediaName", exist_media.getMediaName());
+        post_info.put("mediaUrl", exist_media.getMediaUrl());
+        post_info.put("amount", Integer.toString(view_post.getAmount()));
+        post_info.put("createdAt", view_post.getCreatedAt().toString());
+        post_info.put("modifiedAt", view_post.getModifiedAt().toString());
+
         // 조회하고자하는 게시글 정보들 전체 출력
         return new ResponseEntity<>(new PrivateResponseBody(StatusCode.OK,
-                PostResponseDto.builder()
-                        .id(view_post.getId())
-                        .title(view_post.getTitle())
-                        .author(view_post.getAuthor())
-                        .category(view_post.getCategory())
-                        .local(view_post.getLocal())
-                        .state(view_post.getState())
-                        .trade(view_post.getTrade())
-                        .price(view_post.getPrice())
-                        .content(view_post.getContent())
-                        .tag(view_post.getTag())
-                        .amount(view_post.getAmount())
-                        .media(exist_media)
-                        .createdAt(view_post.getCreatedAt())
-                        .modifiedAt(view_post.getModifiedAt())
-                        .build()), HttpStatus.OK
+                post_info), HttpStatus.OK
         );
+
+//        // 조회하고자하는 게시글 정보들 전체 출력
+//        return new ResponseEntity<>(new PrivateResponseBody(StatusCode.OK,
+//                PostResponseDto.builder()
+//                        .id(view_post.getId())
+//                        .title(view_post.getTitle())
+//                        .author(view_post.getAuthor())
+//                        .category(view_post.getCategory())
+//                        .local(view_post.getLocal())
+//                        .state(view_post.getState())
+//                        .trade(view_post.getTrade())
+//                        .price(view_post.getPrice())
+//                        .content(view_post.getContent())
+//                        .tag(view_post.getTag())
+//                        .amount(view_post.getAmount())
+//                        .media(exist_media)
+//                        .createdAt(view_post.getCreatedAt())
+//                        .modifiedAt(view_post.getModifiedAt())
+//                        .build()), HttpStatus.OK
+//        );
 
     }
 
