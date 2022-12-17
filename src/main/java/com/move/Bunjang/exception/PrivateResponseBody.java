@@ -7,12 +7,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class PrivateResponseBody {
+public class PrivateResponseBody<T> {
     private String statusCode;
     private String statusMsg;
-    private Object data;
+    private T data;
 
-    public PrivateResponseBody(StatusCode statusCode, Object data){
+    public PrivateResponseBody(StatusCode statusCode, T data){
         this.statusCode = statusCode.getStatusCode();
         this.statusMsg = statusCode.getStatusMsg();
         this.data = data;

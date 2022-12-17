@@ -3,22 +3,28 @@ package com.move.Bunjang.service;
 import com.move.Bunjang.controller.response.MypageResponseDto;
 import com.move.Bunjang.controller.response.PostResponseDto;
 import com.move.Bunjang.controller.response.ResponseDto;
+import com.move.Bunjang.domain.Media;
 import com.move.Bunjang.domain.Member;
 import com.move.Bunjang.domain.Post;
 import com.move.Bunjang.jwt.TokenProvider;
 import com.move.Bunjang.repository.PostRepository;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.move.Bunjang.domain.QMedia.media;
 
 @Service
 @RequiredArgsConstructor
 public class MyPageService {
     private final PostRepository postRepository;
     private final TokenProvider tokenProvider;
+    private final JPAQueryFactory jpaQueryFactory;
 
     @Transactional
     public ResponseDto<?> getMyPage(HttpServletRequest request) {
@@ -46,6 +52,11 @@ public class MyPageService {
         List<PostResponseDto> myPostResponseDtoList = new ArrayList<>();
 
         for (Post post : myPostList) {
+            Media exist_media = jpaQueryFactory
+                    .selectFrom(media)
+                    .where(media.post_id.eq(post.getId()))
+                    .fetchOne();
+
             myPostResponseDtoList.add(
                     PostResponseDto.builder()
                             .id(post.getId())
@@ -59,7 +70,7 @@ public class MyPageService {
                             .content(post.getContent())
                             .tag(post.getTag())
                             .amount(post.getAmount())
-                            .medias(post.getMedias())
+                            .media(exist_media)
                             .createdAt(post.getCreatedAt())
                             .modifiedAt(post.getModifiedAt())
                             .build()
@@ -75,7 +86,7 @@ public class MyPageService {
 
     @Transactional
     public Member validateMember(HttpServletRequest request) {
-        if(!tokenProvider.validateToken(request.getHeader("Refresh-Token"))) {
+        if (!tokenProvider.validateToken(request.getHeader("Refresh-Token"))) {
             return null;
         }
         return tokenProvider.getMemberFromAuthentication();
