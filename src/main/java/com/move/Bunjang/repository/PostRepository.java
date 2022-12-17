@@ -17,6 +17,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findAllByMember(Member member);
 
+
     // 검색 추가 2022- 10- 31
 
     // AGAINST MATCH -> LIKE 로 수정
@@ -24,15 +25,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query(value = "SELECT * FROM post WHERE title like concat('%', :title, '%')", nativeQuery = true)
     Page<Post> findByTitleLike(String title, Pageable pageable);
 
-//    @Query(value = "SELECT * FROM  post WHERE author like concat('%', author, '%')" , nativeQuery = true)
-//    Page<Post> findByAuthorContaining(String author, Pageable pageable);
 
-//    @Query(value="SELECT * FROM post WHERE category like concat('%', category, '%')", nativeQuery = true)
-//    Page<Post> findByPostNameContaining(String category, Pageable pageable);
 
-//    @Query(value = "SELECT * FROM post WHERE MATCH(content) "
-//            + "AGAINST (?1)", nativeQuery = true)
-//    Page<Post> findByContentContaining(String content, Pageable pageable);
+    Page<Post> findAll(Pageable pageable);
 
 
 }

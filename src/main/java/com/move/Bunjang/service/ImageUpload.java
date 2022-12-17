@@ -12,12 +12,14 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,30 +28,28 @@ import static com.move.Bunjang.domain.QMedia.media;
 
 @RequiredArgsConstructor
 @Service
+// 미디어 파일들을 S3 , DB 에 저장하는 작업을 interface 로 따로 생성
 public class ImageUpload implements ImageUploadInter{
 
     // S3 버킷
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
-    private final AmazonS3 amazonS3;
-    private final JPAQueryFactory jpaQueryFactory;
-    private final MediaRepository mediaRepository;
-
+    private final AmazonS3 amazonS3; // 아마존 S3 사용
+//    private final JPAQueryFactory jpaQueryFactory; // QueryDSL 사용
+    private final MediaRepository mediaRepository; // 저장을 위한 Media jpa 사용
 
     // 미디어 파일들을 받아서 저장
     @Override
-    public List<Media> fileUpload(List<MultipartFile> multipartFile, Post post) {
+    public Media fileUpload(MultipartFile multipartFile) {
 
-        // forEach 구문을 통해 multipartFile로 넘어온 미디어 파일들 하나씩 조회
-        multipartFile.forEach(file -> {
-            String fileName = file.getOriginalFilename(); // 각 파일의 이름을 저장
+            String fileName = multipartFile.getOriginalFilename(); // 각 파일의 이름을 저장
             ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentLength(file.getSize());
-            objectMetadata.setContentType(file.getContentType());
+            objectMetadata.setContentLength(multipartFile.getSize());
+            objectMetadata.setContentType(multipartFile.getContentType());
 
             System.out.println("for each 진입 : " + fileName);
 
-            try (InputStream inputStream = file.getInputStream()) {
+            try (InputStream inputStream = multipartFile.getInputStream()) {
                 // S3에 업로드 및 저장
                 amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
                         .withCannedAcl(CannedAccessControlList.PublicRead));
@@ -66,33 +66,23 @@ public class ImageUpload implements ImageUploadInter{
                     Media.builder()
                             .mediaName(fileName)
                             .mediaUrl(mediaPath)
-                            .post(post)
                             .build();
 
             mediaRepository.save(media);
 
-        });
-
-        // 저장한 해당 게시글에 속한 미디어 파일들 다시 반환
-        List<Media> medias = jpaQueryFactory
-                .selectFrom(media)
-                .where(media.post.eq(post))
-                .fetch();
-
-        return medias;
+        return media;
     }
 
 
     // S3에 저장되어있는 미디어 파일 삭제
     @Override
     public void deleteFile(String fileName) {
-
         amazonS3.deleteObject(new DeleteObjectRequest(bucket, fileName));
     }
 
 
 
-    // 먼저 파일 업로드 시, 파일명을 난수화하기 위해 random으로 돌린다. (현재는 굳이 난수화할 필요가 없어보여 사용하지 않음)
+    // 파일 업로드 시, 파일명을 난수화하기 위해 random으로 돌린다. (현재는 굳이 난수화할 필요가 없어보여 사용하지 않음)
     @Override
     public String createFileName(String fileName) {
         return UUID.randomUUID().toString().concat(getFileExtension(fileName));

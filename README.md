@@ -1,12 +1,9 @@
 ### clone project
 
-
 <h3 align="center"><b>번개장터 클론 프로젝트</b></h3>
 
 <h4 align="center">📆 2022.10.28 ~ 2022.11.03</h4>
 <br>
-
----
 
 <br>
 <h3 align="center"><b>🛠 Tech Stack 🛠</b></h3>
@@ -25,3 +22,4 @@
   <img src="https://camo.githubusercontent.com/ad176bb5a61237550550e47d7e77dd5d1a846518df44c522d2ba9c0a7da6379c/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f6769746875622d3138313731373f7374796c653d666f722d7468652d6261646765266c6f676f3d676974687562266c6f676f436f6c6f723d7768697465">
 <br>
 <h3 align="center"><b><a href="https://github.com/Hanghae99-CloneProject/BackEnd/wiki/API-%EB%AA%85%EC%84%B8%EC%84%9C">⚙ API 명세서 ⚙</a></b></h3>
+

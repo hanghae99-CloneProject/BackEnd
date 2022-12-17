@@ -5,12 +5,14 @@ import com.move.Bunjang.domain.Media;
 import com.move.Bunjang.domain.Post;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,7 +28,7 @@ public class PostResponseDto {
     private String content;
     private String tag;
     private int amount;
-    private List<Media> medias;
+    private Media media;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -47,7 +49,6 @@ public class PostResponseDto {
                 .content(m.getContent())
                 .tag(m.getTag())
                 .amount(m.getAmount())
-                .medias(m.getMedias())
                 .createdAt(m.getCreatedAt())
                 .modifiedAt(m.getModifiedAt())
                 .build()
@@ -62,6 +63,4 @@ public class PostResponseDto {
 
         return ResponsePostList;
     }
-//    private String whoCreated;
-//    private String whoUpdated;
 }

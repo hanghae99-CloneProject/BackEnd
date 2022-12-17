@@ -63,8 +63,9 @@ public class SecurityConfiguration {
         .antMatchers("/bunjang/signup",
                 "/bunjang/login",
                 "/bunjang/posts/get/**"
+//                "/bunjang/**" // 테스트 시 해제
                 ).permitAll()
-        .antMatchers(HttpMethod.GET,"/api/reviews").permitAll()
+
         .antMatchers("/api/comments/**").permitAll()
         .antMatchers( "/v2/api-docs",
                 "/swagger-resources",
